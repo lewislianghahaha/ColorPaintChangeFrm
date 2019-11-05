@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ColorPaintChangeFrm.DB
 {
@@ -84,7 +80,7 @@ namespace ColorPaintChangeFrm.DB
                         break;
                     case 15:
                         dc.ColumnName = "色母量(KG)";
-                        dc.DataType = Type.GetType("System.String");
+                        dc.DataType = Type.GetType("System.Double");
                         break;
                 }
                 dt.Columns.Add(dc);

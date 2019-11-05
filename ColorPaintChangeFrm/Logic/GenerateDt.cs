@@ -43,15 +43,17 @@ namespace ColorPaintChangeFrm.Logic
                         //计算色母量
                         if (j == 15)
                         {
-                            newrow[j] = Math.Round(Convert.ToDecimal(dtlrows[i][j]) / sumtemp * 1000,2);
+                            newrow[j] = Math.Round(Convert.ToDecimal(dtlrows[i][j]) / sumtemp * 1000, 2);
                         }
-                        //其它列操作
-                        newrow[j] = resultdt.Rows[i][j];
+                        else
+                        {
+                            //其它列操作
+                            newrow[j] = dtlrows[i][j];
+                        }
                     }
                     resultdt.Rows.Add(newrow);
                 }
             }
-            var a = resultdt;
             //根据下拉列表所选择的导出模式,进行改变其导出效果
             return MakeExportMode(selectid, resultdt);
         }
@@ -79,15 +81,14 @@ namespace ColorPaintChangeFrm.Logic
                     for (var i = 0; i < dtrows.Length; i++)
                     {
                         var newrow = resultdt.NewRow();
+
                         for (var j = 0; j < resultdt.Columns.Count; j++)
                         {
-                            if (j != 13 || j != 14 || j != 15)
+                            newrow[j] = i == 0 ? dtrows[i][j] : DBNull.Value;
+
+                            if (j == 13 || j == 14 || j == 15)
                             {
-                                newrow[i] = i == 0 ? dtrows[i][j] : DBNull.Value;
-                            }
-                            else
-                            {
-                                newrow[i] = dtrows[i][j];
+                                newrow[j] = dtrows[i][j];
                             }
                         }
                         resultdt.Rows.Add(newrow);
@@ -147,6 +148,12 @@ namespace ColorPaintChangeFrm.Logic
                     newrow[1] = rows[10];     //层
                     newrow[2] = rows[9];      //版本日期
                     newrow[3] = rows[2];      //涂层
+
+                    //对变量赋值
+                    colorcode = Convert.ToString(rows[4]);
+                    layer = Convert.ToString(rows[10]);
+                    comdt = Convert.ToString(rows[9]);
+                    tulayer = Convert.ToString(rows[2]);
                 }
                 else
                 {
@@ -157,6 +164,12 @@ namespace ColorPaintChangeFrm.Logic
                     newrow[1] = rows[10];     //层
                     newrow[2] = rows[9];      //版本日期
                     newrow[3] = rows[2];      //涂层
+
+                    //对变量赋值
+                    colorcode = Convert.ToString(rows[4]);
+                    layer = Convert.ToString(rows[10]);
+                    comdt = Convert.ToString(rows[9]);
+                    tulayer = Convert.ToString(rows[2]);
                 }
                 tempdt.Rows.Add(newrow);
             }
