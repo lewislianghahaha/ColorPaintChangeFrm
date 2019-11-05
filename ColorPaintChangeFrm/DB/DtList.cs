@@ -178,7 +178,7 @@ namespace ColorPaintChangeFrm.DB
         public DataTable Get_ExportVdt()
         {
             var dt = new DataTable();
-            for (var i = 0; i < 33; i++)
+            for (var i = 0; i < 35; i++)
             {
                 var dc = new DataColumn();
 
@@ -208,10 +208,6 @@ namespace ColorPaintChangeFrm.DB
                         dc.ColumnName = "主配方色号（差异色)";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    //case 6:
-                    //    dc.ColumnName = "差异色名称";
-                    //    dc.DataType = Type.GetType("System.String");
-                    //    break;
                     case 6:
                         dc.ColumnName = "颜色组别";
                         dc.DataType = Type.GetType("System.String");
@@ -232,93 +228,100 @@ namespace ColorPaintChangeFrm.DB
                         dc.ColumnName = "层";
                         dc.DataType = Type.GetType("System.String");
                         break;
-
-
                     case 11:
+                        dc.ColumnName = "制作人";
+                        dc.DataType = Type.GetType("System.String"); 
+                        break;
+                    case 12:
+                        dc.ColumnName = "二维码编号";
+                        dc.DataType = Type.GetType("System.String");
+                        break;
+                    
+                    case 13:
                         dc.ColumnName = "色母1";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 12:
+                    case 14:
                         dc.ColumnName = "色母量1";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 13:
+                    case 15:
                         dc.ColumnName = "色母2";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 14:
+                    case 16:
                         dc.ColumnName = "色母量2";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 15:
+                    case 17:
                         dc.ColumnName = "色母3";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 16:
+                    case 18:
                         dc.ColumnName = "色母量3";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 17:
+                    case 19:
                         dc.ColumnName = "色母4";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 18:
+                    case 20:
                         dc.ColumnName = "色母量4";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 19:
+                    case 21:
                         dc.ColumnName = "色母5";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 20:
+                    case 22:
                         dc.ColumnName = "色母量5";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 21:
+                    case 23:
                         dc.ColumnName = "色母6";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 22:
+                    case 24:
                         dc.ColumnName = "色母量6";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 23:
+                    case 25:
                         dc.ColumnName = "色母7";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 24:
+                    case 26:
                         dc.ColumnName = "色母量7";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 25:
+                    case 27:
                         dc.ColumnName = "色母8";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 26:
+                    case 28:
                         dc.ColumnName = "色母量8";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 27:
+                    case 29:
                         dc.ColumnName = "色母9";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 28:
+                    case 30:
                         dc.ColumnName = "色母量9";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 29:
+                    case 31:
                         dc.ColumnName = "色母10";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 30:
+                    case 32:
                         dc.ColumnName = "色母量10";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
-                    case 31:
+                    case 33:
                         dc.ColumnName = "色母11";
                         dc.DataType = Type.GetType("System.String");
                         break;
-                    case 32:
+                    case 34:
                         dc.ColumnName = "色母量11";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;

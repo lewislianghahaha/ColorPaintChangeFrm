@@ -62,7 +62,7 @@ namespace ColorPaintChangeFrm.Logic
         /// 根据不同模式转换输出效果
         /// </summary>
         /// <param name="selectid">1:纵向 2:横向</param>
-        /// <param name="sourcedt"></param>
+        /// <param name="sourcedt">数据源(以纵向方式)</param>
         /// <returns></returns>
         private DataTable MakeExportMode(int selectid,DataTable sourcedt)
         {
@@ -73,7 +73,7 @@ namespace ColorPaintChangeFrm.Logic
             {
                 //获取纵向输出模板
                 resultdt = sourcedt.Clone();
-                //
+
                 foreach (DataRow rows in _tempdt.Rows)
                 {
                     var dtrows = sourcedt.Select("内部色号='" + rows[0] + "' and 层='" + rows[1] + "' and 版本日期='" + rows[2] + "' and 涂层='" + rows[3] + "'");
@@ -81,7 +81,6 @@ namespace ColorPaintChangeFrm.Logic
                     for (var i = 0; i < dtrows.Length; i++)
                     {
                         var newrow = resultdt.NewRow();
-
                         for (var j = 0; j < resultdt.Columns.Count; j++)
                         {
                             newrow[j] = i == 0 ? dtrows[i][j] : DBNull.Value;
@@ -93,6 +92,8 @@ namespace ColorPaintChangeFrm.Logic
                         }
                         resultdt.Rows.Add(newrow);
                     }
+                    //在结束一个配方的插入后再插入一行空白行
+                    resultdt.Merge(InsertNullRow(resultdt));
                 }
             }
             //横向输出
@@ -101,8 +102,57 @@ namespace ColorPaintChangeFrm.Logic
                 //获取横向输出模板
                 resultdt = dtList.Get_ExportVdt();
 
+                foreach (DataRow rows in _tempdt.Rows)
+                {
+                    //一开始只获取查找到的明细内容的第一行(除色母编码明细外)
+                    var dtrows = sourcedt.Select("内部色号='" + rows[0] + "' and 层='" + rows[1] + "' and 版本日期='" + rows[2] + "' and 涂层='" + rows[3] + "'");
+                    
+                    var newrow = resultdt.NewRow();
+                    newrow[0] = dtrows[0][0];      //制造商
+                    newrow[1] = dtrows[0][1];      //车型
+                    newrow[2] = dtrows[0][2];      //涂层
+                    newrow[3] = dtrows[0][3];      //颜色描述
+                    newrow[4] = dtrows[0][4];      //内部色号
+                    newrow[5] = dtrows[0][5];      //主配方色号（差异色)
+                    newrow[6] = dtrows[0][6];      //颜色组别
+                    newrow[7] = dtrows[0][7];      //标准色号
+                    newrow[8] = dtrows[0][8];      //RGBValue
+                    newrow[9] = dtrows[0][9];      //版本日期
+                    newrow[10] = dtrows[0][10];    //层
+                    newrow[11] = dtrows[0][11];    //制作人
+                    newrow[12] = dtrows[0][12];    //二维码编码
+
+                    //将‘色母’相关信息,插入至对应的项内
+                    var rowsdtl= sourcedt.Select("内部色号='" + rows[0] + "' and 层='" + rows[1] + "' and 版本日期='" + rows[2] + "' and 涂层='" + rows[3] + "'");
+
+                    //注:rowsdtl.Length最大值为11
+
+                    for (var i = 0; i < rowsdtl.Length; i++)
+                    {
+                        newrow[13 + i + i] = rowsdtl[i][13];      //色母编码
+                        newrow[13 + i + i + 1] = rowsdtl[i][15];  //色母量
+                    }
+                    resultdt.Rows.Add(newrow);
+                }
             }
             return resultdt;
+        }
+
+        /// <summary>
+        /// 插入空白行(纵向导出模式使用)
+        /// </summary>
+        /// <returns></returns>
+        private DataTable InsertNullRow(DataTable sourcedt)
+        {
+            var newrow = sourcedt.NewRow();
+
+            for (var i = 0; i < sourcedt.Columns.Count; i++)
+            {
+                newrow[i] = DBNull.Value;
+            }
+
+            sourcedt.Rows.Add(newrow);
+            return sourcedt;
         }
 
         /// <summary>
