@@ -47,6 +47,7 @@
             this.ClientSize = new System.Drawing.Size(284, 30);
             this.ControlBox = false;
             this.Controls.Add(this.progressBar1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Load";
             this.Text = "数据装载中,请稍候...";
             this.ResumeLayout(false);
