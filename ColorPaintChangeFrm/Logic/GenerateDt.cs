@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using ColorPaintChangeFrm.DB;
-using NPOI.OpenXmlFormats.Dml;
 
 namespace ColorPaintChangeFrm.Logic
 {
@@ -27,10 +26,11 @@ namespace ColorPaintChangeFrm.Logic
             //创建导出临时表
             var resultdt = dtList.Get_ExportHdt();
 
-            //根据内部色号 层 版本日期 涂层在sourcedt内找到相关记录,并计算其色母量之和
+            //根据 制造商 版本日期 内部色号 层 涂层 在sourcedt内找到相关记录,并计算其色母量之和
             foreach (DataRow rows in _tempdt.Rows)
             {
-                var dtlrows = sourcedtdt.Select("内部色号='"+rows[0]+ "' and 层='"+rows[1]+ "' and 版本日期='"+rows[2]+ "' and 涂层='"+rows[3]+"'");
+                //排序方式改为:制造商 版本日期 内部色号 层 涂层 
+                var dtlrows = sourcedtdt.Select("制造商='"+rows[0]+ "' and 版本日期='"+rows[1]+ "' and 内部色号='"+rows[2]+ "' and 层='"+rows[3]+"' and 涂层='"+rows[4]+"'");
                 //计算出色母量之和
                 sumtemp = GenerateSumQty(dtlrows);
 
@@ -76,7 +76,7 @@ namespace ColorPaintChangeFrm.Logic
 
                 foreach (DataRow rows in _tempdt.Rows)
                 {
-                    var dtrows = sourcedt.Select("内部色号='" + rows[0] + "' and 层='" + rows[1] + "' and 版本日期='" + rows[2] + "' and 涂层='" + rows[3] + "'");
+                    var dtrows = sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
 
                     for (var i = 0; i < dtrows.Length; i++)
                     {
@@ -105,8 +105,8 @@ namespace ColorPaintChangeFrm.Logic
                 foreach (DataRow rows in _tempdt.Rows)
                 {
                     //一开始只获取查找到的明细内容的第一行(除色母编码明细外)
-                    var dtrows = sourcedt.Select("内部色号='" + rows[0] + "' and 层='" + rows[1] + "' and 版本日期='" + rows[2] + "' and 涂层='" + rows[3] + "'");
-                    
+                    var dtrows = sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
+
                     var newrow = resultdt.NewRow();
                     newrow[0] = dtrows[0][0];      //制造商
                     newrow[1] = dtrows[0][1];      //车型
@@ -123,7 +123,7 @@ namespace ColorPaintChangeFrm.Logic
                     newrow[12] = dtrows[0][12];    //二维码编码
 
                     //将‘色母’相关信息,插入至对应的项内
-                    var rowsdtl= sourcedt.Select("内部色号='" + rows[0] + "' and 层='" + rows[1] + "' and 版本日期='" + rows[2] + "' and 涂层='" + rows[3] + "'");
+                    var rowsdtl= sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
 
                     //注:rowsdtl.Length最大值为11
 
@@ -179,12 +179,16 @@ namespace ColorPaintChangeFrm.Logic
         /// <returns></returns>
         private void GetColorCodeDt(DataTable tempdt,DataTable sourcedt)
         {
+            //排序方式改为:制造商 版本日期 内部色号 层 涂层 
+
+            //定义‘制造商’变量
+            var factory = string.Empty;
+            //定义‘版本日期’变量
+            var comdt = string.Empty;
             //定义‘内部色号’变量
             var colorcode = string.Empty;
             //定义‘层’变量
             var layer = string.Empty;
-            //定义‘版本日期’变量
-            var comdt = string.Empty;
             //定义‘涂层’变量
             var tulayer = string.Empty;
 
@@ -194,31 +198,36 @@ namespace ColorPaintChangeFrm.Logic
                 var newrow = tempdt.NewRow();
                 if (colorcode == "")
                 {
-                    newrow[0] = rows[4];      //内部色号
-                    newrow[1] = rows[10];     //层
-                    newrow[2] = rows[9];      //版本日期
-                    newrow[3] = rows[2];      //涂层
+                    newrow[0] = rows[0];      //制造商
+                    newrow[1] = rows[9];      //版本日期
+                    newrow[2] = rows[4];      //内部色号
+                    newrow[3] = rows[10];     //层
+                    newrow[4] = rows[2];      //涂层
 
                     //对变量赋值
+                    factory = Convert.ToString(rows[0]);
+                    comdt = Convert.ToString(rows[9]);
                     colorcode = Convert.ToString(rows[4]);
                     layer = Convert.ToString(rows[10]);
-                    comdt = Convert.ToString(rows[9]);
                     tulayer = Convert.ToString(rows[2]);
                 }
                 else
                 {
-                    if (colorcode == Convert.ToString(rows[4]) && layer == Convert.ToString(rows[10]) && comdt == Convert.ToString(rows[9])
-                        && tulayer == Convert.ToString(rows[2])) continue;
-                    //当不相同时才添加
-                    newrow[0] = rows[4];      //内部色号
-                    newrow[1] = rows[10];     //层
-                    newrow[2] = rows[9];      //版本日期
-                    newrow[3] = rows[2];      //涂层
+                    if (factory == Convert.ToString(rows[0]) && comdt == Convert.ToString(rows[9]) && colorcode == Convert.ToString(rows[4]) 
+                        && layer == Convert.ToString(rows[10]) && tulayer == Convert.ToString(rows[2])) continue;
 
+                    //当不相同时才添加
+                    newrow[0] = rows[0];      //制造商
+                    newrow[1] = rows[9];      //版本日期
+                    newrow[2] = rows[4];      //内部色号 
+                    newrow[3] = rows[10];     //层
+                    newrow[4] = rows[2];      //涂层
+                    
                     //对变量赋值
+                    factory = Convert.ToString(rows[0]);
+                    comdt = Convert.ToString(rows[9]);
                     colorcode = Convert.ToString(rows[4]);
                     layer = Convert.ToString(rows[10]);
-                    comdt = Convert.ToString(rows[9]);
                     tulayer = Convert.ToString(rows[2]);
                 }
                 tempdt.Rows.Add(newrow);

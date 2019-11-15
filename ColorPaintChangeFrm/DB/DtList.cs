@@ -338,25 +338,29 @@ namespace ColorPaintChangeFrm.DB
         public DataTable Get_ColorcodeDt()
         {
             var dt = new DataTable();
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < 5; i++)
             {
                 var dc = new DataColumn();
 
                 switch (i)
                 {
                     case 0:
-                        dc.ColumnName = "内部色号";
+                        dc.ColumnName = "制造商";
                         dc.DataType = Type.GetType("System.String");
                     break;
                     case 1:
-                        dc.ColumnName = "层";
-                        dc.DataType = Type.GetType("System.String");
-                        break;
-                    case 2:
                         dc.ColumnName = "版本日期";
                         dc.DataType = Type.GetType("System.String");
                         break;
+                    case 2:
+                        dc.ColumnName = "内部色号";
+                        dc.DataType = Type.GetType("System.String");
+                        break;
                     case 3:
+                        dc.ColumnName = "层";
+                        dc.DataType = Type.GetType("System.String");
+                        break;
+                    case 4:
                         dc.ColumnName = "涂层";
                         dc.DataType = Type.GetType("System.String");
                         break;
