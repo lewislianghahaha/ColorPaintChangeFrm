@@ -125,8 +125,6 @@ namespace ColorPaintChangeFrm.Logic
                     //将‘色母’相关信息,插入至对应的项内
                     var rowsdtl= sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
 
-                    //注:rowsdtl.Length最大值为11
-
                     for (var i = 0; i < rowsdtl.Length; i++)
                     {
                         newrow[13 + i + i] = rowsdtl[i][13];      //色母编码
