@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using ColorPaintChangeFrm.DB;
+using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
@@ -16,15 +17,15 @@ namespace ColorPaintChangeFrm.Logic
         /// 打开及导入至DT
         /// </summary>
         /// <param name="fileAddress"></param>
-        /// <param name="selectid"></param>
+        /// <param name="typeid">导入类型=>1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入</param>
         /// <returns></returns>
-        public DataTable OpenExcelImporttoDt(string fileAddress, int selectid)
+        public DataTable OpenExcelImporttoDt(string fileAddress, int typeid)
         {
             var dt = new DataTable();
             try
             {
                 //使用NPOI技术进行导入EXCEL至DATATABLE
-                var importExcelDt = OpenExcelToDataTable(fileAddress);
+                var importExcelDt = OpenExcelToDataTable(fileAddress,typeid);
                 //将从EXCEL过来的记录集为空的行清除
                 dt = RemoveEmptyRows(importExcelDt);
             }
@@ -36,19 +37,41 @@ namespace ColorPaintChangeFrm.Logic
             return dt;
         }
 
-        private DataTable OpenExcelToDataTable(string fileAddress)
+        private DataTable OpenExcelToDataTable(string fileAddress,int typeid)
         {
             IWorkbook wk;
+
+            #region 变量定义
             //定义列ID
             var colid = 0;
-            ////定义ID变量
-            //var id = 1;
-            ////定义内部色号
-            //var code = string.Empty;
-            ////定义版本日期
-            //var confirmdt = string.Empty;
-            ////定义层
-            //var layer = 0;
+            //定义制造商
+            var company = string.Empty;
+            //定义车型
+            var car = string.Empty;
+            //定义涂层
+            var tulayer = string.Empty;
+            //定义颜色描述
+            var colordescript = string.Empty;
+            //定义内部色号
+            var colorcode = string.Empty;
+            //定义主配方(差异色)
+            var colorcha = string.Empty;
+            //定义颜色组别
+            var colorgroup = string.Empty;
+            //定义标准色号
+            var standurd = string.Empty;
+            //定义RGBValue
+            var rgb = string.Empty;
+            //定义版本日期
+            var fordt = string.Empty;
+            //定义层
+            var layer = string.Empty;
+            //定义制作人
+            var user = string.Empty;
+            //定义二维码编号
+            var code = string.Empty;
+            #endregion
+
             //创建表标题
             var dt = dtList.Get_Importdt();
 
@@ -69,63 +92,123 @@ namespace ColorPaintChangeFrm.Logic
                     var row = sheet.GetRow(r);
                     if (row == null) continue;
 
-                    //读取每列
+                    //定义总列数
                     colid = 16;
 
-                    for (var j = 0; j < colid/*37*//*row.Cells.Count*/; j++)
+                    for (var j = 0; j < colid/*row.Cells.Count*/; j++)
                     {
-                        //if (j == 0 && selectid != 3)
-                        //{
-                        //    dr[0] = id;
-                        //}
-
-                        //else
-                        //{
-                            //循环获取行中的单元格
-                            var cell = row.GetCell(j);
-                            var cellValue = GetCellValue(cell);
-                            if (cellValue == string.Empty)
+                        //循环获取行中的单元格
+                        var cell = row.GetCell(j);
+                        var cellValue = GetCellValue(cell);
+                        if (cellValue == string.Empty)
+                        {
+                            //若为空,将对应变量赋值给指定的dr[j]内=>(注:typeid=2时才执行)
+                            if (typeid == 2)
                             {
-                            //    if (j == 4 && selectid == 3)
-                            //    {
-                            //        dr[j] = code;
-                            //    }
-                            //    else if (j == 9 && selectid == 3)
-                            //    {
-                            //        dr[j] = confirmdt;
-                            //    }
-                            //    else if (j == 10 && selectid == 3)
-                            //    {
-                            //        dr[j] = layer;
-                            //    }
-                            //    else
-                            //    {
-                                    continue;
-                                //}
+                                switch (j)
+                                {
+                                    case 0:
+                                        dr[j] = company;
+                                        break;
+                                    case 1:
+                                        dr[j] =car;
+                                        break;
+                                    case 2:
+                                        dr[j] = tulayer;
+                                        break;
+                                    case 3:
+                                        dr[j] = colordescript;
+                                        break;
+                                    case 4:
+                                        dr[j] = colorcode;
+                                        break;
+                                    case 5:
+                                        dr[j] = colorcha;
+                                        break;
+                                    case 6:
+                                        dr[j] = colorgroup;
+                                        break;
+                                    case 7:
+                                        dr[j] = standurd;
+                                        break;
+                                    case 8:
+                                        dr[j] = rgb;
+                                        break;
+                                    case 9:
+                                        dr[j] = fordt;
+                                        break;
+                                    case 10:
+                                        dr[j] = layer;
+                                        break;
+                                    case 11:
+                                        dr[j] = user;
+                                        break;
+                                    case 12:
+                                        dr[j] = code;
+                                        break;
+                                }
                             }
                             else
                             {
-                                dr[j] = cellValue;
-                                //if (j == 4 && selectid == 3)
-                                //{
-                                //    code = Convert.ToString(dr[j]);
-                                //}
-                                //else if (j == 9 && selectid == 3)
-                                //{
-                                //    confirmdt = Convert.ToString(dr[j]);
-                                //}
-                                //else if (j == 10 && selectid == 3)
-                                //{
-                                //    layer = Convert.ToInt32(dr[j]);
-                                //}
+                                continue;
                             }
-
-                            //全为空就不取
-                            if (dr[j].ToString() != "")
+                        }
+                        else
+                        {
+                            dr[j] = cellValue;
+                            //若不为空,将对应的J赋值给对应的变量内=>(注:typeid=2时才执行)
+                            if (typeid == 2)
                             {
-                                result = true;
+                                switch (j)
+                                {
+                                    case 0:
+                                        company = Convert.ToString(dr[j]);
+                                        break;
+                                    case 1:
+                                        car = Convert.ToString(dr[j]);
+                                        break;
+                                    case 2:
+                                        tulayer = Convert.ToString(dr[j]);
+                                        break;
+                                    case 3:
+                                        colordescript = Convert.ToString(dr[j]);
+                                        break;
+                                    case 4:
+                                        colorcode = Convert.ToString(dr[j]);
+                                        break;
+                                    case 5:
+                                        colorcha = Convert.ToString(dr[j]);
+                                        break;
+                                    case 6:
+                                        colorgroup = Convert.ToString(dr[j]);
+                                        break;
+                                    case 7:
+                                        standurd = Convert.ToString(dr[j]);
+                                        break;
+                                    case 8:
+                                        rgb = Convert.ToString(dr[j]);
+                                        break;
+                                    case 9:
+                                        fordt = Convert.ToString(dr[j]);
+                                        break;
+                                    case 10:
+                                        layer = Convert.ToString(dr[j]);
+                                        break;
+                                    case 11:
+                                        user = Convert.ToString(dr[j]);
+                                        break;
+                                    case 12:
+                                        code = Convert.ToString(dr[j]);
+                                        break;
+                                }
                             }
-                        //}
+                        }
+
+                        //全为空就不取
+                        if (dr[j].ToString() != "")
+                        {
+                            result = true;
+                        }
                     }
 
                     if (result == true)
@@ -133,9 +216,6 @@ namespace ColorPaintChangeFrm.Logic
                         //把每行增加到DataTable
                         dt.Rows.Add(dr);
                     }
-                    //自增ID值
-                    //if (selectid != 3)
-                    //    id++;
                 }
             }
             return dt;

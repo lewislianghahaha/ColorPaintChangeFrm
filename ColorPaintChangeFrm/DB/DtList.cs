@@ -79,7 +79,7 @@ namespace ColorPaintChangeFrm.DB
                         dc.DataType = Type.GetType("System.String");
                         break;
                     case 15:
-                        dc.ColumnName = "色母量(KG)";
+                        dc.ColumnName = "色母量";
                         dc.DataType = Type.GetType("System.Double");
                         break;
                 }

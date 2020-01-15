@@ -31,9 +31,11 @@
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.tmclose = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
             this.comselect = new System.Windows.Forms.ComboBox();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.btnimportemptyexcel = new System.Windows.Forms.Button();
             this.btnopen = new System.Windows.Forms.Button();
+            this.comgenselect = new System.Windows.Forms.ComboBox();
             this.MainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -59,46 +61,65 @@
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.comgenselect);
             this.panel1.Controls.Add(this.comselect);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 25);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(284, 33);
+            this.panel1.Size = new System.Drawing.Size(284, 51);
             this.panel1.TabIndex = 2;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.btnopen);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(0, 58);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(284, 45);
-            this.panel2.TabIndex = 3;
             // 
             // comselect
             // 
             this.comselect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comselect.FormattingEnabled = true;
-            this.comselect.Location = new System.Drawing.Point(11, 6);
+            this.comselect.Location = new System.Drawing.Point(11, 3);
             this.comselect.Name = "comselect";
             this.comselect.Size = new System.Drawing.Size(260, 20);
             this.comselect.TabIndex = 3;
             // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.btnimportemptyexcel);
+            this.panel2.Controls.Add(this.btnopen);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(0, 76);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(284, 70);
+            this.panel2.TabIndex = 3;
+            // 
+            // btnimportemptyexcel
+            // 
+            this.btnimportemptyexcel.Location = new System.Drawing.Point(32, 37);
+            this.btnimportemptyexcel.Name = "btnimportemptyexcel";
+            this.btnimportemptyexcel.Size = new System.Drawing.Size(212, 23);
+            this.btnimportemptyexcel.TabIndex = 1;
+            this.btnimportemptyexcel.Text = "导入纵向(含空格)EXCEL";
+            this.btnimportemptyexcel.UseVisualStyleBackColor = true;
+            // 
             // btnopen
             // 
-            this.btnopen.Location = new System.Drawing.Point(32, 10);
+            this.btnopen.Location = new System.Drawing.Point(32, 8);
             this.btnopen.Name = "btnopen";
             this.btnopen.Size = new System.Drawing.Size(212, 23);
             this.btnopen.TabIndex = 0;
             this.btnopen.Text = "导入EXCEL";
             this.btnopen.UseVisualStyleBackColor = true;
             // 
+            // comgenselect
+            // 
+            this.comgenselect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comgenselect.FormattingEnabled = true;
+            this.comgenselect.Location = new System.Drawing.Point(11, 26);
+            this.comgenselect.Name = "comgenselect";
+            this.comgenselect.Size = new System.Drawing.Size(170, 20);
+            this.comgenselect.TabIndex = 4;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 103);
-            this.ControlBox = false;
+            this.ClientSize = new System.Drawing.Size(284, 146);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.MainMenu);
@@ -122,6 +143,8 @@
         private System.Windows.Forms.ComboBox comselect;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Button btnopen;
+        private System.Windows.Forms.Button btnimportemptyexcel;
+        private System.Windows.Forms.ComboBox comgenselect;
     }
 }
 

@@ -15,6 +15,8 @@ namespace ColorPaintChangeFrm.Logic
         private DataTable _dt;             //获取dt(从EXCEL获取的DT)
         private DataTable _tempdt;         //保存运算成功的DT(导出时使用)
         private int _seletcomid;           //获取下拉框所选的值ID(导出时使用)
+        private int _typeid;               //获取导入的来源(1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入)
+        private int _genid;                //获取转换单位(1:按KG进行计算色母量 2:按L进行计算色母量)
 
         private DataTable _resultTable;   //返回DT
         private bool _resultMark;        //返回是否成功标记
@@ -39,6 +41,14 @@ namespace ColorPaintChangeFrm.Logic
         /// 获取下拉框所选的值ID(导出时使用)
         /// </summary>
         public int Selectcomid { set { _seletcomid = value; } }
+        /// <summary>
+        /// 获取导入的来源(1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入)
+        /// </summary>
+        public int Typeid { set { _typeid = value; } }
+        /// <summary>
+        /// 获取转换单位(1:按KG进行计算色母量 2:按L进行计算色母量)
+        /// </summary>
+        public int Genid { set { _genid = value; } }
         #endregion
 
         #region Get
@@ -65,11 +75,15 @@ namespace ColorPaintChangeFrm.Logic
             {
                 //导入
                 case 0:
-                    OpenExcelImporttoDt(_fileAddress, _seletcomid);
+                    OpenExcelImporttoDt(_fileAddress, _typeid);
+                    break;
+                //导入-含空白纵向EXCEL
+                case 3:
+                    ImportEmportExcelToDt(_fileAddress, _typeid);
                     break;
                 //运算
                 case 1:
-                    GenerateRecord(_seletcomid, _dt);
+                    GenerateRecord(_genid,_seletcomid, _dt);
                     break;
                 //导出
                 case 2:
@@ -79,23 +93,34 @@ namespace ColorPaintChangeFrm.Logic
         }
 
         /// <summary>
-        /// 导入
+        /// 导入(常规纵向EXCEL导入)
         /// </summary>
         /// <param name="fileAddress"></param>
-        /// <param name="selectid">获取下拉框所选的值ID 1:导出至旧数据库 2:导出至新数据库 3:以横向方式导出至新数据库模板</param>
-        private void OpenExcelImporttoDt(string fileAddress, int selectid)
+        /// <param name="typeid">导入类型=>1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入</param>
+        private void OpenExcelImporttoDt(string fileAddress, int typeid)
         {
-            _resultTable = importDt.OpenExcelImporttoDt(fileAddress, selectid);
+            _resultTable = importDt.OpenExcelImporttoDt(fileAddress, typeid);
+        }
+
+        /// <summary>
+        /// 导入(带空白纵向EXCEL导入)
+        /// </summary>
+        /// <param name="fileAddress"></param>
+        /// <param name="typeid">导入类型=>1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入</param>
+        private void ImportEmportExcelToDt(string fileAddress, int typeid)
+        {
+            _resultTable = importDt.OpenExcelImporttoDt(fileAddress, typeid);
         }
 
         /// <summary>
         /// 运算
         /// </summary>
-        /// <param name="selectid">获取下拉框所选的值ID 1:导出至旧数据库 2:导出至新数据库 3:以横向方式导出至新数据库模板</param>
+        /// <param name="genid">转换单位=>1:按KG进行计算色母量 2:按L进行计算色母量</param>
+        /// <param name="selectid">获取下拉框所选的值ID 1:以纵向方式导出 2:以横向方式导出</param>
         /// <param name="dt">从EXCEL导入过来的DT</param>
-        private void GenerateRecord(int selectid, DataTable dt)
+        private void GenerateRecord(int genid,int selectid, DataTable dt)
         {
-            _tempdt = generateDt.GenerateExcelSourceDt(selectid, dt);
+            _tempdt = generateDt.GenerateExcelSourceDt(genid,selectid, dt);
             _resultMark = _tempdt.Rows.Count > 0;
         }
 

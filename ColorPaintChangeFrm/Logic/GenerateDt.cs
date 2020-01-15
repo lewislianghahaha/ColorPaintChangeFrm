@@ -13,10 +13,11 @@ namespace ColorPaintChangeFrm.Logic
         /// <summary>
         /// 运算
         /// </summary>
+        /// <param name="genid">1:按KG进行计算色母量 2:按L进行计算色母量</param>
         /// <param name="selectid">1:纵向 2:横向</param>
         /// <param name="sourcedtdt"></param>
         /// <returns></returns>
-        public DataTable GenerateExcelSourceDt(int selectid, DataTable sourcedtdt)
+        public DataTable GenerateExcelSourceDt(int genid,int selectid, DataTable sourcedtdt)
         {
             //定义总色母量(中间值)
             decimal sumtemp = 0;
@@ -31,27 +32,55 @@ namespace ColorPaintChangeFrm.Logic
             {
                 //排序方式改为:制造商 版本日期 内部色号 层 涂层 
                 var dtlrows = sourcedtdt.Select("制造商='"+rows[0]+ "' and 版本日期='"+rows[1]+ "' and 内部色号='"+rows[2]+ "' and 层='"+rows[3]+"' and 涂层='"+rows[4]+"'");
-                //计算出色母量之和
-                sumtemp = GenerateSumQty(dtlrows);
 
-                for (var i = 0; i < dtlrows.Length; i++)
+                //计算出色母量之和(genid=>1:按KG进行计算色母量 2:按L进行计算色母量)
+                //按KG进行计算色母量
+                if (genid == 1)
                 {
-                    //循环插入至resultdt临时表 色母量公式:Round(单个色母量/色母量之和*1000,2)
-                    var newrow = resultdt.NewRow();
-                    for (var j = 0; j < resultdt.Columns.Count; j++)
+                    sumtemp = GenerateSumQty(dtlrows);
+
+                    for (var i = 0; i < dtlrows.Length; i++)
                     {
-                        //计算色母量
-                        if (j == 15)
+                        //循环插入至resultdt临时表 色母量公式(KG):公式=Round(单个色母量/色母量之和*1000,2)
+                        var newrow = resultdt.NewRow();
+                        for (var j = 0; j < resultdt.Columns.Count; j++)
                         {
-                            newrow[j] = Math.Round(Convert.ToDecimal(dtlrows[i][j]) / sumtemp * 1000, 2);
+                            //计算色母量
+                            if (j == 15)
+                            {
+                                newrow[j] = Math.Round(Convert.ToDecimal(dtlrows[i][j]) / sumtemp * 1000, 2);
+                            }
+                            else
+                            {
+                                //其它列操作
+                                newrow[j] = dtlrows[i][j];
+                            }
                         }
-                        else
-                        {
-                            //其它列操作
-                            newrow[j] = dtlrows[i][j];
-                        }
+                        resultdt.Rows.Add(newrow);
                     }
-                    resultdt.Rows.Add(newrow);
+                }
+                //按L进行计算色母量
+                else
+                {
+                    for (var i = 0; i < dtlrows.Length; i++)
+                    {
+                        //循环插入至resultdt临时表 色母量(L):公式=Round(单个色母量*0.1,2)
+                        var newrow = resultdt.NewRow();
+                        for (var j = 0; j < resultdt.Columns.Count; j++)
+                        {
+                            //计算色母量
+                            if (j == 15)
+                            {
+                                newrow[j] = Math.Round(Convert.ToDecimal(dtlrows[i][j])*Convert.ToDecimal(0.1),3);
+                            }
+                            else
+                            {
+                                //其它列操作
+                                newrow[j] = dtlrows[i][j];
+                            }
+                        }
+                        resultdt.Rows.Add(newrow);
+                    }
                 }
             }
             //根据下拉列表所选择的导出模式,进行改变其导出效果

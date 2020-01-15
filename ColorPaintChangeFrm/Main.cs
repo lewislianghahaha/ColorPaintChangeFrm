@@ -26,35 +26,33 @@ namespace ColorPaintChangeFrm
             InitializeComponent();
             OnRegisterEvents();
             OnShowTypeList();
+            OnShowGenerTypeList();
         }
 
         private void OnRegisterEvents()
         {
             btnopen.Click += Btnopen_Click;
             tmclose.Click += Tmclose_Click;
+            btnimportemptyexcel.Click += Btnimportemptyexcel_Click;
         }
 
         /// <summary>
-        /// 导入
+        /// 导入-含空白纵向EXCEL导入
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Btnopen_Click(object sender, EventArgs e)
+        private void Btnimportemptyexcel_Click(object sender, EventArgs e)
         {
             try
             {
-                //获取下拉列表信息
-                var dvCustidlist = (DataRowView)comselect.Items[comselect.SelectedIndex];
-                var selectid = Convert.ToInt32(dvCustidlist["Id"]);
-
                 var openFileDialog = new OpenFileDialog { Filter = "Xlsx文件|*.xlsx" };
                 if (openFileDialog.ShowDialog() != DialogResult.OK) return;
                 var fileAdd = openFileDialog.FileName;
 
                 //将所需的值赋到Task类内
-                task.TaskId = 0;
+                task.TaskId = 3;
                 task.FileAddress = fileAdd;
-                task.Selectcomid = selectid;
+                task.Typeid = 2;   //导入类型=>1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入
 
                 //使用子线程工作(作用:通过调用子线程进行控制Load窗体的关闭情况)
                 new Thread(Start).Start();
@@ -78,13 +76,65 @@ namespace ColorPaintChangeFrm
                         }
                     }
                 }
-
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        /// <summary>
+        /// 导入-常规纵向EXCEL导入
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Btnopen_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                //获取下拉列表信息
+                //var dvCustidlist = (DataRowView)comselect.Items[comselect.SelectedIndex];
+                //var selectid = Convert.ToInt32(dvCustidlist["Id"]);
+
+                var openFileDialog = new OpenFileDialog { Filter = "Xlsx文件|*.xlsx" };
+                if (openFileDialog.ShowDialog() != DialogResult.OK) return;
+                var fileAdd = openFileDialog.FileName;
+
+                //将所需的值赋到Task类内
+                task.TaskId = 0;
+                task.FileAddress = fileAdd;
+                task.Typeid = 1; //导入类型=>1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入
+
+                //使用子线程工作(作用:通过调用子线程进行控制Load窗体的关闭情况)
+                new Thread(Start).Start();
+                load.StartPosition = FormStartPosition.CenterScreen;
+                load.ShowDialog();
+
+                _importdt = task.RestulTable;
+
+                if (_importdt.Rows.Count == 0) throw new Exception("不能成功导入EXCEL内容,请检查模板是否正确.");
+                else
+                {
+                    var clickMessage = $"导入成功,是否进行运算功能?";
+                    var clickMes = $"运算成功,是否进行导出至Excel?";
+
+                    if (MessageBox.Show(clickMessage, "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    {
+                        if (!Generatedt(_importdt)) throw new Exception("运算不成功,请联系管理员");
+                        else if (MessageBox.Show(clickMes, "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                        {
+                            Exportdt();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
 
         /// <summary>
         /// 运算功能
@@ -94,13 +144,18 @@ namespace ColorPaintChangeFrm
             var result = true;
             try
             {
-                //获取下拉列表信息
+                //获取下拉列表信息-打印方向
                 var dvCustidlist = (DataRowView)comselect.Items[comselect.SelectedIndex];
                 var selectid = Convert.ToInt32(dvCustidlist["Id"]);
 
+                //获取下拉列表信息-转换单位
+                var dvgenidlist = (DataRowView)comgenselect.Items[comgenselect.SelectedIndex];
+                var genid = Convert.ToInt32(dvgenidlist["Id"]);
+
                 task.TaskId = 1;
                 task.Data = dt;
-                task.Selectcomid = selectid;
+                task.Selectcomid = selectid; //导出方式=>1:以纵向方式导出 2:以横向方式导出
+                task.Genid = genid;          //转换单位=>1:按KG进行计算色母量 2:按L进行计算色母量
 
                 //使用子线程工作(作用:通过调用子线程进行控制Load窗体的关闭情况)
                 new Thread(Start).Start();
@@ -230,6 +285,53 @@ namespace ColorPaintChangeFrm
             comselect.DataSource = dt;
             comselect.DisplayMember = "Name"; //设置显示值
             comselect.ValueMember = "Id";    //设置默认值内码
+        }
+
+        /// <summary>
+        /// 初始化-转换单位列表
+        /// </summary>
+        private void OnShowGenerTypeList()
+        {
+            var dt = new DataTable();
+
+            //创建表头
+            for (var i = 0; i < 2; i++)
+            {
+                var dc = new DataColumn();
+                switch (i)
+                {
+                    case 0:
+                        dc.ColumnName = "Id";
+                        break;
+                    case 1:
+                        dc.ColumnName = "Name";
+                        break;
+                }
+                dt.Columns.Add(dc);
+            }
+
+            //创建行内容
+            for (var j = 0; j < 2; j++)
+            {
+                var dr = dt.NewRow();
+
+                switch (j)
+                {
+                    case 0:
+                        dr[0] = "1";
+                        dr[1] = "按KG进行计算色母量";
+                        break;
+                    case 1:
+                        dr[0] = "2";
+                        dr[1] = "按L进行计算色母量";
+                        break;
+                }
+                dt.Rows.Add(dr);
+            }
+
+            comgenselect.DataSource = dt;
+            comgenselect.DisplayMember = "Name"; //设置显示值
+            comgenselect.ValueMember = "Id";    //设置默认值内码
         }
 
     }
