@@ -178,7 +178,7 @@ namespace ColorPaintChangeFrm.DB
         public DataTable Get_ExportVdt()
         {
             var dt = new DataTable();
-            for (var i = 0; i < 47; i++)
+            for (var i = 0; i < 53; i++)
             {
                 var dc = new DataColumn();
 
@@ -371,6 +371,30 @@ namespace ColorPaintChangeFrm.DB
                         break;
                     case 46:
                         dc.ColumnName = "色母量17";
+                        dc.DataType = Type.GetType("System.Decimal");
+                        break;
+                    case 47:
+                        dc.ColumnName = "色母18";
+                        dc.DataType = Type.GetType("System.String");
+                        break;
+                    case 48:
+                        dc.ColumnName = "色母量18";
+                        dc.DataType = Type.GetType("System.Decimal");
+                        break;
+                    case 49:
+                        dc.ColumnName = "色母19";
+                        dc.DataType = Type.GetType("System.String");
+                        break;
+                    case 50:
+                        dc.ColumnName = "色母量19";
+                        dc.DataType = Type.GetType("System.Decimal");
+                        break;
+                    case 51:
+                        dc.ColumnName = "色母20";
+                        dc.DataType = Type.GetType("System.String");
+                        break;
+                    case 52:
+                        dc.ColumnName = "色母量20";
                         dc.DataType = Type.GetType("System.Decimal");
                         break;
                 }
