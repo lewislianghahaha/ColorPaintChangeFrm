@@ -119,7 +119,7 @@ namespace ColorPaintChangeFrm
                     {
                         //对标记进行初始化赋值
                         GlobalClasscs.Fun.ImportWhite = "WR";
-                        if (!Generatedt(_importdt)) throw new Exception("运算不成功,请联系管理员");
+                        if (!Generatedt(_importdt)) throw new Exception("运算不成功或没有结果,请联系管理员");
                         else if (MessageBox.Show(clickMes, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                         {
                             Exportdt();
