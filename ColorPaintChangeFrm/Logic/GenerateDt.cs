@@ -37,26 +37,26 @@ namespace ColorPaintChangeFrm.Logic
                 //按KG进行计算色母量
                 if (genid == 1)
                 {
+                    //计算色母量之和
                     sumtemp = GenerateSumQty(dtlrows);
+                    //判断dtlrows内的‘增白剂’用量 是否适合导出条件(注:需要使用‘增白剂’用量/总色母量>=0.2才可继续)
+                    var checkmark = CheckMaterial(dtlrows, sumtemp);
 
                     for (var i = 0; i < dtlrows.Length; i++)
                     {
-                        //循环插入至resultdt临时表 色母量公式(KG):公式=Round(单个色母量/色母量之和*1000,2)
-                        var newrow = resultdt.NewRow();
-                        for (var j = 0; j < resultdt.Columns.Count; j++)
+                        //若选择了'导入增白(控色剂)EXCEL'按钮时执行
+                        if (GlobalClasscs.Fun.ImportWhite == "WR")
                         {
-                            //计算色母量
-                            if (j == 15)
-                            {
-                                newrow[j] = Math.Round(Convert.ToDecimal(dtlrows[i][j]) / sumtemp * 1000, 2);
-                            }
-                            else
-                            {
-                                //其它列操作
-                                newrow[j] = dtlrows[i][j];
-                            }
+                            //若不满足条件(返回值为FALSE)就跳出循环
+                            if (!checkmark) break;
+                            //执行运算及整理至resultdt内
+                            resultdt.Merge(GenerateKGdt(resultdt,dtlrows[i],sumtemp));                           
                         }
-                        resultdt.Rows.Add(newrow);
+                        //常规操作
+                        else
+                        {
+                            resultdt.Merge(GenerateKGdt(resultdt,dtlrows[i],sumtemp));
+                        }
                     }
                 }
                 //按L进行计算色母量
@@ -88,6 +88,54 @@ namespace ColorPaintChangeFrm.Logic
         }
 
         /// <summary>
+        /// 循环判断dtlrows内的增白剂 用量 是否适合导出条件
+        /// </summary>
+        /// <param name="dtlrows"></param>
+        /// <param name="sumtemp"></param>
+        /// <returns></returns>
+        private bool CheckMaterial(DataRow [] dtlrows,decimal sumtemp)
+        {
+            var result = false;
+            for (var i = 0; i < dtlrows.Length; i++)
+            {
+                if (Convert.ToString(dtlrows[i][14]) != "增白剂") continue;
+                //使用“增白剂”对应的色母量/总色母量,若>=0.2才继续
+                if (Convert.ToDecimal(Convert.ToDecimal(dtlrows[i][15]) / sumtemp) >= Convert.ToDecimal(0.2))
+                    result = true;
+                break;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 将结果整理到resultdt内(以公斤会式来运算)
+        /// </summary>
+        /// <param name="resultdt"></param>
+        /// <param name="rows"></param>
+        /// <param name="sumtemp"></param>
+        /// <returns></returns>
+        private DataTable GenerateKGdt(DataTable resultdt,DataRow rows,decimal sumtemp)
+        {
+            var newrow = resultdt.NewRow();
+            //循环插入至resultdt临时表 色母量公式(KG):公式=Round(单个色母量/色母量之和*1000,2)
+            for (var j = 0; j < resultdt.Columns.Count; j++)
+            {
+                //计算色母量
+                if (j == 15)
+                {
+                    newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) / sumtemp * 1000, 2);
+                }
+                else
+                {
+                    //其它列操作
+                    newrow[j] = rows[j];
+                }
+            }
+            resultdt.Rows.Add(newrow);
+            return resultdt;
+        }
+
+        /// <summary>
         /// 根据不同模式转换输出效果
         /// </summary>
         /// <param name="selectid">1:纵向 2:横向</param>
@@ -96,14 +144,16 @@ namespace ColorPaintChangeFrm.Logic
         private DataTable MakeExportMode(int selectid,DataTable sourcedt)
         {
             var resultdt=new DataTable();
-
+            var tempdt=new DataTable();
             //纵向输出
             if (selectid == 1)
             {
                 //获取纵向输出模板
                 resultdt = sourcedt.Clone();
+                //若选择了'导入增白(控色剂)EXCEL'按钮时执行(反之常规执行)
+                tempdt = GlobalClasscs.Fun.ImportWhite == "WR" ? GenerateNewDt(sourcedt) : _tempdt;
 
-                foreach (DataRow rows in _tempdt.Rows)
+                foreach (DataRow rows in tempdt.Rows)
                 {
                     var dtrows = sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
 
@@ -262,5 +312,29 @@ namespace ColorPaintChangeFrm.Logic
             _tempdt = tempdt;
         }
 
+        /// <summary>
+        /// 若选择了'导入增白(控色剂)EXCEL'按钮时执行-
+        /// 使用整理出来的sourcedt与_tempdt进行比较,若_tempdt在sourcedt内存在,才将记录插入至resultdt内
+        /// </summary>
+        /// <returns></returns>
+        private DataTable GenerateNewDt(DataTable sourcedt)
+        {
+            var resultdt = _tempdt.Clone();
+
+            foreach (DataRow rows in _tempdt.Rows)
+            {
+                var dtlrow= sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
+                //若存在,才将记录插入至resultdt内
+                if (dtlrow.Length <= 0) continue;
+                var newrow = resultdt.NewRow();
+                //将_tempdt的内容插入至resultdt内
+                for (var j = 0; j < resultdt.Columns.Count; j++)
+                {
+                    newrow[j] = rows[j];
+                }               
+                resultdt.Rows.Add(newrow);
+            }
+            return resultdt;
+        }
     }
 }

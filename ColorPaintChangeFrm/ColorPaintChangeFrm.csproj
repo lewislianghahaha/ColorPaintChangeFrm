@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DB\DtList.cs" />
+    <Compile Include="GlobalClasscs.cs" />
     <Compile Include="Load.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -34,6 +34,7 @@ namespace ColorPaintChangeFrm
             btnopen.Click += Btnopen_Click;
             tmclose.Click += Tmclose_Click;
             btnimportemptyexcel.Click += Btnimportemptyexcel_Click;
+            btnimportWhiteExcel.Click += BtnimportWhiteExcel_Click;
         }
 
         /// <summary>
@@ -67,10 +68,10 @@ namespace ColorPaintChangeFrm
                     var clickMessage = $"导入成功,是否进行运算功能?";
                     var clickMes = $"运算成功,是否进行导出至Excel?";
 
-                    if (MessageBox.Show(clickMessage, "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    if (MessageBox.Show(clickMessage, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                     {
                         if (!Generatedt(_importdt)) throw new Exception("运算不成功,请联系管理员");
-                        else if (MessageBox.Show(clickMes, "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                        else if (MessageBox.Show(clickMes, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                         {
                             Exportdt();
                         }
@@ -79,7 +80,58 @@ namespace ColorPaintChangeFrm
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, $"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// 导入增白(控色剂)EXCEL
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnimportWhiteExcel_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var openFileDialog = new OpenFileDialog { Filter = "Xlsx文件|*.xlsx" };
+                if (openFileDialog.ShowDialog() != DialogResult.OK) return;
+                var fileAdd = openFileDialog.FileName;
+
+                //将所需的值赋到Task类内
+                task.TaskId = 0;
+                task.FileAddress = fileAdd;
+                task.Typeid = 1;   //导入类型=>1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入
+
+                //使用子线程工作(作用:通过调用子线程进行控制Load窗体的关闭情况)
+                new Thread(Start).Start();
+                load.StartPosition = FormStartPosition.CenterScreen;
+                load.ShowDialog();
+
+                _importdt = task.RestulTable;
+
+                if (_importdt.Rows.Count == 0) throw new Exception("不能成功导入EXCEL内容,请检查模板是否正确.");
+                else
+                {
+                    var clickMessage = $"导入成功,是否进行运算功能?";
+                    var clickMes = $"运算成功,是否进行导出至Excel?";
+
+                    if (MessageBox.Show(clickMessage, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    {
+                        //对标记进行初始化赋值
+                        GlobalClasscs.Fun.ImportWhite = "WR";
+                        if (!Generatedt(_importdt)) throw new Exception("运算不成功,请联系管理员");
+                        else if (MessageBox.Show(clickMes, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                        {
+                            Exportdt();
+                            //执行完成后进行清空
+                            GlobalClasscs.Fun.ImportWhite = "";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, $"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -184,7 +236,7 @@ namespace ColorPaintChangeFrm
                 var dvCustidlist = (DataRowView)comselect.Items[comselect.SelectedIndex];
                 var selectid = Convert.ToInt32(dvCustidlist["Id"]);
 
-                var saveFileDialog = new SaveFileDialog { Filter = "Xlsx文件|*.xlsx" };
+                var saveFileDialog = new SaveFileDialog { Filter = $"Xlsx文件|*.xlsx" };
                 if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
                 var fileAdd = saveFileDialog.FileName;
 
@@ -200,13 +252,13 @@ namespace ColorPaintChangeFrm
                 if (!task.ResultMark) throw new Exception("导出异常");
                 else
                 {
-                    MessageBox.Show($"导出成功!可从EXCEL中查阅导出效果", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"导出成功!可从EXCEL中查阅导出效果", $"成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, $"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
