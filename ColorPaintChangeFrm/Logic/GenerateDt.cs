@@ -118,12 +118,13 @@ namespace ColorPaintChangeFrm.Logic
         {
             var newrow = resultdt.NewRow();
             //循环插入至resultdt临时表 色母量公式(KG):公式=Round(单个色母量/色母量之和*1000,2)
+            //change date:2020-04-08 公式=Round(单个色母量/色母量之和*100,2)
             for (var j = 0; j < resultdt.Columns.Count; j++)
             {
                 //计算色母量
                 if (j == 15)
                 {
-                    newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) / sumtemp * 1000, 2);
+                    newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) / sumtemp * 100, 2);
                 }
                 else
                 {
@@ -143,15 +144,14 @@ namespace ColorPaintChangeFrm.Logic
         /// <returns></returns>
         private DataTable MakeExportMode(int selectid,DataTable sourcedt)
         {
-            var resultdt=new DataTable();
-            var tempdt=new DataTable();
+            DataTable resultdt;
+            //若选择了'导入增白(控色剂)EXCEL'按钮时执行(反之常规执行)
+            var tempdt = GlobalClasscs.Fun.ImportWhite == "WR" ? GenerateNewDt(sourcedt) : _tempdt;
             //纵向输出
             if (selectid == 1)
             {
                 //获取纵向输出模板
                 resultdt = sourcedt.Clone();
-                //若选择了'导入增白(控色剂)EXCEL'按钮时执行(反之常规执行)
-                tempdt = GlobalClasscs.Fun.ImportWhite == "WR" ? GenerateNewDt(sourcedt) : _tempdt;
 
                 foreach (DataRow rows in tempdt.Rows)
                 {
@@ -181,7 +181,7 @@ namespace ColorPaintChangeFrm.Logic
                 //获取横向输出模板
                 resultdt = dtList.Get_ExportVdt();
 
-                foreach (DataRow rows in _tempdt.Rows)
+                foreach (DataRow rows in tempdt.Rows)
                 {
                     //一开始只获取查找到的明细内容的第一行(除色母编码明细外)
                     var dtrows = sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
