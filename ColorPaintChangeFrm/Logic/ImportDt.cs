@@ -111,7 +111,7 @@ namespace ColorPaintChangeFrm.Logic
                                         dr[j] = company;
                                         break;
                                     case 1:
-                                        dr[j] =car;
+                                        dr[j] = car;
                                         break;
                                     case 2:
                                         dr[j] = tulayer;

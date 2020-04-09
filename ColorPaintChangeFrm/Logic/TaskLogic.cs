@@ -16,7 +16,8 @@ namespace ColorPaintChangeFrm.Logic
         private DataTable _tempdt;         //保存运算成功的DT(导出时使用)
         private int _seletcomid;           //获取下拉框所选的值ID(导出时使用)
         private int _typeid;               //获取导入的来源(1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入)
-        private int _genid;                //获取转换单位(1:按KG进行计算色母量 2:按L进行计算色母量)
+        private int _genid;                //获取转换单位(1:按KG进行计算色母量 2:按L进行计算色母量 0:不需计算色母量)
+        private int _sortid;               //获取选择条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)
 
         private DataTable _resultTable;   //返回DT
         private bool _resultMark;        //返回是否成功标记
@@ -49,6 +50,10 @@ namespace ColorPaintChangeFrm.Logic
         /// 获取转换单位(1:按KG进行计算色母量 2:按L进行计算色母量)
         /// </summary>
         public int Genid { set { _genid = value; } }
+        /// <summary>
+        /// 获取选择条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)
+        /// </summary>
+        public int Sortid { set { _sortid = value; } }
         #endregion
 
         #region Get
@@ -83,7 +88,7 @@ namespace ColorPaintChangeFrm.Logic
                     break;
                 //运算
                 case 1:
-                    GenerateRecord(_genid,_seletcomid, _dt);
+                    GenerateRecord(_genid,_seletcomid, _sortid,_dt);
                     break;
                 //导出
                 case 2:
@@ -116,11 +121,12 @@ namespace ColorPaintChangeFrm.Logic
         /// 运算
         /// </summary>
         /// <param name="genid">转换单位=>1:按KG进行计算色母量 2:按L进行计算色母量</param>
-        /// <param name="selectid">获取下拉框所选的值ID 1:以纵向方式导出 2:以横向方式导出</param>
+        /// <param name="selectid">获取下拉框所选的值ID 1:以纵向方式导出 2:以横向方式导出 0:不需计算色母量</param>
+        /// <param name="sortid">获取选择条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)</param>
         /// <param name="dt">从EXCEL导入过来的DT</param>
-        private void GenerateRecord(int genid,int selectid, DataTable dt)
+        private void GenerateRecord(int genid,int selectid, int sortid, DataTable dt)
         {
-            _tempdt = generateDt.GenerateExcelSourceDt(genid,selectid, dt);
+            _tempdt = generateDt.GenerateExcelSourceDt(genid,selectid, sortid,dt);
             _resultMark = _tempdt.Rows.Count > 0;
         }
 

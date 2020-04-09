@@ -9,8 +9,6 @@ namespace ColorPaintChangeFrm.Logic
 {
     public class ExportDt
     {
-        DtList dtList = new DtList();
-
         /// <summary>
         /// 导出
         /// </summary>

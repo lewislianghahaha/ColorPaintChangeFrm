@@ -27,6 +27,7 @@ namespace ColorPaintChangeFrm
             OnRegisterEvents();
             OnShowTypeList();
             OnShowGenerTypeList();
+            OnShowSortTypeList();
         }
 
         private void OnRegisterEvents()
@@ -46,7 +47,7 @@ namespace ColorPaintChangeFrm
         {
             try
             {
-                var openFileDialog = new OpenFileDialog { Filter = "Xlsx文件|*.xlsx" };
+                var openFileDialog = new OpenFileDialog { Filter = $"Xlsx文件|*.xlsx" };
                 if (openFileDialog.ShowDialog() != DialogResult.OK) return;
                 var fileAdd = openFileDialog.FileName;
 
@@ -93,7 +94,7 @@ namespace ColorPaintChangeFrm
         {
             try
             {
-                var openFileDialog = new OpenFileDialog { Filter = "Xlsx文件|*.xlsx" };
+                var openFileDialog = new OpenFileDialog { Filter = $"Xlsx文件|*.xlsx" };
                 if (openFileDialog.ShowDialog() != DialogResult.OK) return;
                 var fileAdd = openFileDialog.FileName;
 
@@ -118,13 +119,13 @@ namespace ColorPaintChangeFrm
                     if (MessageBox.Show(clickMessage, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                     {
                         //对标记进行初始化赋值
-                        GlobalClasscs.Fun.ImportWhite = "WR";
+                        //GlobalClasscs.Fun.ImportWhite = "WR";
                         if (!Generatedt(_importdt)) throw new Exception("运算不成功或没有结果,请联系管理员");
                         else if (MessageBox.Show(clickMes, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                         {
                             Exportdt();
                             //执行完成后进行清空
-                            GlobalClasscs.Fun.ImportWhite = "";
+                           // GlobalClasscs.Fun.ImportWhite = "";
                         }
                     }
                 }
@@ -144,11 +145,7 @@ namespace ColorPaintChangeFrm
         {
             try
             {
-                //获取下拉列表信息
-                //var dvCustidlist = (DataRowView)comselect.Items[comselect.SelectedIndex];
-                //var selectid = Convert.ToInt32(dvCustidlist["Id"]);
-
-                var openFileDialog = new OpenFileDialog { Filter = "Xlsx文件|*.xlsx" };
+                var openFileDialog = new OpenFileDialog { Filter = $"Xlsx文件|*.xlsx" };
                 if (openFileDialog.ShowDialog() != DialogResult.OK) return;
                 var fileAdd = openFileDialog.FileName;
 
@@ -170,10 +167,10 @@ namespace ColorPaintChangeFrm
                     var clickMessage = $"导入成功,是否进行运算功能?";
                     var clickMes = $"运算成功,是否进行导出至Excel?";
 
-                    if (MessageBox.Show(clickMessage, "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    if (MessageBox.Show(clickMessage, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                     {
                         if (!Generatedt(_importdt)) throw new Exception("运算不成功,请联系管理员");
-                        else if (MessageBox.Show(clickMes, "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                        else if (MessageBox.Show(clickMes, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                         {
                             Exportdt();
                         }
@@ -182,7 +179,7 @@ namespace ColorPaintChangeFrm
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, $"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -204,10 +201,15 @@ namespace ColorPaintChangeFrm
                 var dvgenidlist = (DataRowView)comgenselect.Items[comgenselect.SelectedIndex];
                 var genid = Convert.ToInt32(dvgenidlist["Id"]);
 
+                //获取下拉列表信息-选择条件
+                var dvsortlist= (DataRowView)comsortselect.Items[comgenselect.SelectedIndex];
+                var sortid = Convert.ToInt32(dvsortlist["Id"]);
+
                 task.TaskId = 1;
                 task.Data = dt;
                 task.Selectcomid = selectid; //导出方式=>1:以纵向方式导出 2:以横向方式导出
-                task.Genid = genid;          //转换单位=>1:按KG进行计算色母量 2:按L进行计算色母量
+                task.Genid = genid;          //转换单位=>1:按KG进行计算色母量 2:按L进行计算色母量 0:不需计算色母量
+                task.Sortid = sortid;        //获取选择条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)
 
                 //使用子线程工作(作用:通过调用子线程进行控制Load窗体的关闭情况)
                 new Thread(Start).Start();
@@ -242,7 +244,7 @@ namespace ColorPaintChangeFrm
 
                 task.TaskId = 2;
                 task.FileAddress = fileAdd;
-                task.Selectcomid = selectid;
+                task.Selectcomid = selectid;    //1:以纵向方式导出 2:以横向方式导出
 
                 //使用子线程工作(作用:通过调用子线程进行控制Load窗体的关闭情况)
                 new Thread(Start).Start();
@@ -363,7 +365,7 @@ namespace ColorPaintChangeFrm
             }
 
             //创建行内容
-            for (var j = 0; j < 2; j++)
+            for (var j = 0; j < 3; j++)
             {
                 var dr = dt.NewRow();
 
@@ -377,6 +379,10 @@ namespace ColorPaintChangeFrm
                         dr[0] = "2";
                         dr[1] = "按L进行计算色母量";
                         break;
+                    case 2:
+                        dr[0] = "0";
+                        dr[1] = "不需计算色母量";
+                        break;
                 }
                 dt.Rows.Add(dr);
             }
@@ -384,6 +390,65 @@ namespace ColorPaintChangeFrm
             comgenselect.DataSource = dt;
             comgenselect.DisplayMember = "Name"; //设置显示值
             comgenselect.ValueMember = "Id";    //设置默认值内码
+        }
+
+        /// <summary>
+        /// 初始化-筛选下拉列表
+        /// </summary>
+        private void OnShowSortTypeList()
+        {
+            var dt = new DataTable();
+
+            //创建表头
+            for (var i = 0; i < 2; i++)
+            {
+                var dc = new DataColumn();
+                switch (i)
+                {
+                    case 0:
+                        dc.ColumnName = "Id";
+                        break;
+                    case 1:
+                        dc.ColumnName = "Name";
+                        break;
+                }
+                dt.Columns.Add(dc);
+            }
+
+            //创建行内容
+            for (var j = 0; j < 5; j++)
+            {
+                var dr = dt.NewRow();
+
+                switch (j)
+                {
+                    case 0:
+                        dr[0] = "1";
+                        dr[1] = "不筛选";
+                        break;
+                    case 1:
+                        dr[0] = "2";
+                        dr[1] = "获取1个色母数的配方";
+                        break;
+                    case 2:
+                        dr[0] = "3" ;
+                        dr[1] = "获取2个色母数的配方";
+                        break;
+                    case 3:
+                        dr[0] = "4";
+                        dr[1] = "获取3个色母数并包含PC-60的配方";
+                        break;
+                    case 4:
+                        dr[0] = "5";
+                        dr[1] = "获取包含PC-60并占比>=20%的配方";
+                        break;
+                }
+                dt.Rows.Add(dr);
+            }
+
+            comsortselect.DataSource = dt;
+            comsortselect.DisplayMember = "Name"; //设置显示值
+            comsortselect.ValueMember = "Id";    //设置默认值内码
         }
 
     }

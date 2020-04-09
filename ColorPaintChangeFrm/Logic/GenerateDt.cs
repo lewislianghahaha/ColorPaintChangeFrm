@@ -13,11 +13,12 @@ namespace ColorPaintChangeFrm.Logic
         /// <summary>
         /// 运算
         /// </summary>
-        /// <param name="genid">1:按KG进行计算色母量 2:按L进行计算色母量</param>
+        /// <param name="genid">1:按KG进行计算色母量 2:按L进行计算色母量 0:不需计算色母量</param>
         /// <param name="selectid">1:纵向 2:横向</param>
+        /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)</param>
         /// <param name="sourcedtdt"></param>
         /// <returns></returns>
-        public DataTable GenerateExcelSourceDt(int genid,int selectid, DataTable sourcedtdt)
+        public DataTable GenerateExcelSourceDt(int genid,int selectid, int sortid, DataTable sourcedtdt)
         {
             //定义总色母量(中间值)
             decimal sumtemp = 0;
@@ -33,30 +34,32 @@ namespace ColorPaintChangeFrm.Logic
                 //排序方式改为:制造商 版本日期 内部色号 层 涂层 
                 var dtlrows = sourcedtdt.Select("制造商='"+rows[0]+ "' and 版本日期='"+rows[1]+ "' and 内部色号='"+rows[2]+ "' and 层='"+rows[3]+"' and 涂层='"+rows[4]+"'");
 
-                //计算出色母量之和(genid=>1:按KG进行计算色母量 2:按L进行计算色母量)
+                //筛选条件=>作用:根据所选择的筛选条件ID,来判断此dtlrows内的记录能否插入至resultdt内
+                var checkmark = CheckMaterial(sortid,dtlrows,sumtemp);
+
+                //计算出色母量之和(genid=>0:不需计算色母量 1:按KG进行计算色母量 2:按L进行计算色母量)
+                //不需计算色母量(即直接将数据插入至resultdt内)
+                if (genid == 0)
+                {
+                    for (var i = 0; i < dtlrows.Length; i++)
+                    {
+                        //若不满足条件(返回值为FALSE)就跳出循环
+                        if (!checkmark) break;
+                        resultdt.Merge(Generatedt(resultdt,dtlrows[i]));
+                    }
+                }
                 //按KG进行计算色母量
-                if (genid == 1)
+                else if (genid == 1)
                 {
                     //计算色母量之和
                     sumtemp = GenerateSumQty(dtlrows);
-                    //判断dtlrows内的‘增白剂’用量 是否适合导出条件(注:需要使用‘增白剂’用量/总色母量>=0.2才可继续)
-                    var checkmark = CheckMaterial(dtlrows, sumtemp);
 
                     for (var i = 0; i < dtlrows.Length; i++)
                     {
-                        //若选择了'导入增白(控色剂)EXCEL'按钮时执行
-                        if (GlobalClasscs.Fun.ImportWhite == "WR")
-                        {
-                            //若不满足条件(返回值为FALSE)就跳出循环
-                            if (!checkmark) break;
-                            //执行运算及整理至resultdt内
-                            resultdt.Merge(GenerateKGdt(resultdt,dtlrows[i],sumtemp));                           
-                        }
-                        //常规操作
-                        else
-                        {
-                            resultdt.Merge(GenerateKGdt(resultdt,dtlrows[i],sumtemp));
-                        }
+                        //若不满足条件(返回值为FALSE)就跳出循环
+                        if (!checkmark) break;
+                        //执行运算及整理至resultdt内
+                        resultdt.Merge(GenerateKGdt(resultdt,dtlrows[i],sumtemp));                           
                     }
                 }
                 //按L进行计算色母量
@@ -64,45 +67,64 @@ namespace ColorPaintChangeFrm.Logic
                 {
                     for (var i = 0; i < dtlrows.Length; i++)
                     {
-                        //循环插入至resultdt临时表 色母量(L):公式=Round(单个色母量*0.1,2)
-                        var newrow = resultdt.NewRow();
-                        for (var j = 0; j < resultdt.Columns.Count; j++)
-                        {
-                            //计算色母量
-                            if (j == 15)
-                            {
-                                newrow[j] = Math.Round(Convert.ToDecimal(dtlrows[i][j])*Convert.ToDecimal(0.1),3);
-                            }
-                            else
-                            {
-                                //其它列操作
-                                newrow[j] = dtlrows[i][j];
-                            }
-                        }
-                        resultdt.Rows.Add(newrow);
+                        //若不满足条件(返回值为FALSE)就跳出循环
+                        if (!checkmark) break;
+                        //执行运算及整理至resultdt内
+                        resultdt.Merge(GenerateLdt(resultdt,dtlrows[i]));
                     }
                 }
             }
             //根据下拉列表所选择的导出模式,进行改变其导出效果
-            return MakeExportMode(selectid, resultdt);
+            return MakeExportMode(selectid, sortid,resultdt);
         }
 
         /// <summary>
+        /// 
         /// 循环判断dtlrows内的增白剂 用量 是否适合导出条件
         /// </summary>
+        /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)</param>
         /// <param name="dtlrows"></param>
         /// <param name="sumtemp"></param>
         /// <returns></returns>
-        private bool CheckMaterial(DataRow [] dtlrows,decimal sumtemp)
+        private bool CheckMaterial(int sortid,DataRow [] dtlrows,decimal sumtemp)
         {
             var result = false;
-            for (var i = 0; i < dtlrows.Length; i++)
+
+            if (sortid == 1)
             {
-                if (Convert.ToString(dtlrows[i][14]) != "增白剂") continue;
-                //使用“增白剂”对应的色母量/总色母量,若>=0.2才继续
-                if (Convert.ToDecimal(Convert.ToDecimal(dtlrows[i][15]) / sumtemp) >= Convert.ToDecimal(0.2))
+                result = true;
+            }
+            else if (sortid == 2)
+            {
+                if (dtlrows.Length == 1)
                     result = true;
-                break;
+            }
+            else if (sortid == 3)
+            {
+                if (dtlrows.Length == 2)
+                    result = true;
+            }
+            else if (sortid == 4)
+            {
+                for (var i = 0; i < dtlrows.Length; i++)
+                {
+                    if (Convert.ToString(dtlrows[i][13]) != "PC-60") continue;
+                    //若检测到配方总行数为3时才继续
+                    if (dtlrows.Length==3)
+                        result = true;
+                        break;
+                }
+            }
+            else
+            {
+                for (var i = 0; i < dtlrows.Length; i++)
+                {
+                    if (Convert.ToString(dtlrows[i][13]) != "PC-60") continue;
+                    //使用“PC-60”对应的色母量/总色母量,若>=0.2才继续
+                    if (Convert.ToDecimal(Convert.ToDecimal(dtlrows[i][15]) / sumtemp) >= Convert.ToDecimal(0.2))
+                        result = true;
+                        break;
+                }
             }
             return result;
         }
@@ -137,16 +159,64 @@ namespace ColorPaintChangeFrm.Logic
         }
 
         /// <summary>
+        /// 将结果整理到resultdt内(以L会式来运算) todo:需修改公式 
+        /// </summary>
+        /// <param name="resultdt"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        private DataTable GenerateLdt(DataTable resultdt,DataRow rows)
+        {
+            var newrow = resultdt.NewRow();
+            //循环插入至resultdt临时表 色母量(L):公式=Round(单个色母量*0.1,2)
+            for (var j = 0; j < resultdt.Columns.Count; j++)
+            {
+                //计算色母量
+                if (j == 15)
+                {
+                    newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) * Convert.ToDecimal(0.1), 3);
+                }
+                else
+                {
+                    //其它列操作
+                    newrow[j] = rows[j];
+                }
+            }
+            resultdt.Rows.Add(newrow);
+            return resultdt;
+        }
+
+        /// <summary>
+        /// 不需计算色母量使用
+        /// </summary>
+        /// <param name="resultdt"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        private DataTable Generatedt(DataTable resultdt,DataRow rows)
+        {
+            var newrow = resultdt.NewRow();
+            for (var j = 0; j < resultdt.Columns.Count; j++)
+            {
+                newrow[j] = rows[j];
+            }
+            resultdt.Rows.Add(newrow);
+            return resultdt;    
+        }
+
+        /// <summary>
         /// 根据不同模式转换输出效果
         /// </summary>
         /// <param name="selectid">1:纵向 2:横向</param>
+        /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)</param>
         /// <param name="sourcedt">数据源(以纵向方式)</param>
         /// <returns></returns>
-        private DataTable MakeExportMode(int selectid,DataTable sourcedt)
+        private DataTable MakeExportMode(int selectid,int sortid,DataTable sourcedt)
         {
             DataTable resultdt;
-            //若选择了'导入增白(控色剂)EXCEL'按钮时执行(反之常规执行)
-            var tempdt = GlobalClasscs.Fun.ImportWhite == "WR" ? GenerateNewDt(sourcedt) : _tempdt;
+            DataTable tempdt;
+            //除筛选条件为‘不筛选’外,其它都要进行判断获取表头信息
+            // var tempdt = GlobalClasscs.Fun.ImportWhite == "WR" ? GenerateNewDt(sourcedt) : _tempdt;
+            tempdt = sortid == 1 ? _tempdt : GenerateNewDt(sourcedt);
+
             //纵向输出
             if (selectid == 1)
             {
