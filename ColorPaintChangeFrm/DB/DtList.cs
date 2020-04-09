@@ -95,7 +95,7 @@ namespace ColorPaintChangeFrm.DB
         public DataTable Get_ExportHdt()
         {
             var dt = new DataTable();
-            for (var i = 0; i < 16; i++)
+            for (var i = 0; i < 17; i++)
             {
                 var dc = new DataColumn();
 
@@ -165,6 +165,10 @@ namespace ColorPaintChangeFrm.DB
                         dc.ColumnName = "色母量(KG)";
                         dc.DataType = Type.GetType("System.Double");
                         break;
+                    case 16:
+                        dc.ColumnName = "内部色号&版本日期";
+                        dc.DataType = Type.GetType("System.String");
+                        break;
                 }
                 dt.Columns.Add(dc);
             }
@@ -178,7 +182,7 @@ namespace ColorPaintChangeFrm.DB
         public DataTable Get_ExportVdt()
         {
             var dt = new DataTable();
-            for (var i = 0; i < 73; i++)
+            for (var i = 0; i < 74; i++)
             {
                 var dc = new DataColumn();
 
@@ -476,6 +480,10 @@ namespace ColorPaintChangeFrm.DB
                     case 72:
                         dc.ColumnName = "色母量30";
                         dc.DataType = Type.GetType("System.Decimal");
+                        break;
+                    case 73:
+                        dc.ColumnName = "内部色号&版本日期";
+                        dc.DataType = Type.GetType("System.String");
                         break;
                 }
                 dt.Columns.Add(dc);

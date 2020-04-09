@@ -31,13 +31,12 @@
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.tmclose = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.comsortselect = new System.Windows.Forms.ComboBox();
             this.comgenselect = new System.Windows.Forms.ComboBox();
             this.comselect = new System.Windows.Forms.ComboBox();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.btnimportWhiteExcel = new System.Windows.Forms.Button();
             this.btnimportemptyexcel = new System.Windows.Forms.Button();
             this.btnopen = new System.Windows.Forms.Button();
-            this.comsortselect = new System.Windows.Forms.ComboBox();
             this.MainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -72,6 +71,15 @@
             this.panel1.Size = new System.Drawing.Size(284, 77);
             this.panel1.TabIndex = 2;
             // 
+            // comsortselect
+            // 
+            this.comsortselect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comsortselect.FormattingEnabled = true;
+            this.comsortselect.Location = new System.Drawing.Point(11, 50);
+            this.comsortselect.Name = "comsortselect";
+            this.comsortselect.Size = new System.Drawing.Size(260, 20);
+            this.comsortselect.TabIndex = 5;
+            // 
             // comgenselect
             // 
             this.comgenselect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -92,23 +100,13 @@
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.btnimportWhiteExcel);
             this.panel2.Controls.Add(this.btnimportemptyexcel);
             this.panel2.Controls.Add(this.btnopen);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(0, 102);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(284, 103);
+            this.panel2.Size = new System.Drawing.Size(284, 73);
             this.panel2.TabIndex = 3;
-            // 
-            // btnimportWhiteExcel
-            // 
-            this.btnimportWhiteExcel.Location = new System.Drawing.Point(12, 69);
-            this.btnimportWhiteExcel.Name = "btnimportWhiteExcel";
-            this.btnimportWhiteExcel.Size = new System.Drawing.Size(260, 23);
-            this.btnimportWhiteExcel.TabIndex = 2;
-            this.btnimportWhiteExcel.Text = "导入控色(增白)剂记录EXCEL";
-            this.btnimportWhiteExcel.UseVisualStyleBackColor = true;
             // 
             // btnimportemptyexcel
             // 
@@ -128,20 +126,11 @@
             this.btnopen.Text = "导入EXCEL";
             this.btnopen.UseVisualStyleBackColor = true;
             // 
-            // comsortselect
-            // 
-            this.comsortselect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comsortselect.FormattingEnabled = true;
-            this.comsortselect.Location = new System.Drawing.Point(11, 50);
-            this.comsortselect.Name = "comsortselect";
-            this.comsortselect.Size = new System.Drawing.Size(260, 20);
-            this.comsortselect.TabIndex = 5;
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 205);
+            this.ClientSize = new System.Drawing.Size(284, 175);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -168,7 +157,6 @@
         private System.Windows.Forms.Button btnopen;
         private System.Windows.Forms.Button btnimportemptyexcel;
         private System.Windows.Forms.ComboBox comgenselect;
-        private System.Windows.Forms.Button btnimportWhiteExcel;
         private System.Windows.Forms.ComboBox comsortselect;
     }
 }

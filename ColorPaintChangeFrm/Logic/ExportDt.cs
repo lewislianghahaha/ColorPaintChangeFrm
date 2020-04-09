@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.IO;
-using ColorPaintChangeFrm.DB;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
@@ -94,6 +93,9 @@ namespace ColorPaintChangeFrm.Logic
                                     break;
                                 case 15:
                                     row.CreateCell(j).SetCellValue("色母量(KG)");
+                                    break;
+                                case 16:
+                                    row.CreateCell(j).SetCellValue("内部色号&版本日期");
                                     break;
                                     #endregion
                             }
@@ -210,6 +212,9 @@ namespace ColorPaintChangeFrm.Logic
                                     break;
                                 case 34:
                                     row.CreateCell(j).SetCellValue("色母量11");
+                                    break;
+                                case 73:
+                                    row.CreateCell(j).SetCellValue("内部色号&版本日期");
                                     break;
                                     #endregion
                             }

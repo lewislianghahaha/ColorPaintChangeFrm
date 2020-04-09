@@ -34,6 +34,9 @@ namespace ColorPaintChangeFrm.Logic
                 //排序方式改为:制造商 版本日期 内部色号 层 涂层 
                 var dtlrows = sourcedtdt.Select("制造商='"+rows[0]+ "' and 版本日期='"+rows[1]+ "' and 内部色号='"+rows[2]+ "' and 层='"+rows[3]+"' and 涂层='"+rows[4]+"'");
 
+                //计算色母量之和
+                sumtemp = GenerateSumQty(dtlrows);
+
                 //筛选条件=>作用:根据所选择的筛选条件ID,来判断此dtlrows内的记录能否插入至resultdt内
                 var checkmark = CheckMaterial(sortid,dtlrows,sumtemp);
 
@@ -51,9 +54,6 @@ namespace ColorPaintChangeFrm.Logic
                 //按KG进行计算色母量
                 else if (genid == 1)
                 {
-                    //计算色母量之和
-                    sumtemp = GenerateSumQty(dtlrows);
-
                     for (var i = 0; i < dtlrows.Length; i++)
                     {
                         //若不满足条件(返回值为FALSE)就跳出循环
@@ -143,8 +143,13 @@ namespace ColorPaintChangeFrm.Logic
             //change date:2020-04-08 公式=Round(单个色母量/色母量之和*100,2)
             for (var j = 0; j < resultdt.Columns.Count; j++)
             {
+                //表示到最后一列=>将内部色号+"&"+版本日期
+                if (j == resultdt.Columns.Count - 1)
+                {
+                    newrow[j] = Convert.ToString(rows[4] + "&" + Convert.ToString(rows[9]));
+                }
                 //计算色母量
-                if (j == 15)
+                else if (j == 15)
                 {
                     newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) / sumtemp * 100, 2);
                 }
@@ -170,8 +175,13 @@ namespace ColorPaintChangeFrm.Logic
             //循环插入至resultdt临时表 色母量(L):公式=Round(单个色母量*0.1,2)
             for (var j = 0; j < resultdt.Columns.Count; j++)
             {
+                //表示到最后一列=>将内部色号+"&"+版本日期
+                if (j == resultdt.Columns.Count - 1)
+                {
+                    newrow[j] = Convert.ToString(rows[4] + "&" + Convert.ToString(rows[9]));
+                }
                 //计算色母量
-                if (j == 15)
+                else if (j == 15)
                 {
                     newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) * Convert.ToDecimal(0.1), 3);
                 }
@@ -196,7 +206,15 @@ namespace ColorPaintChangeFrm.Logic
             var newrow = resultdt.NewRow();
             for (var j = 0; j < resultdt.Columns.Count; j++)
             {
-                newrow[j] = rows[j];
+                //表示到最后一列=>将内部色号+"&"+版本日期
+                if (j == resultdt.Columns.Count - 1)
+                {
+                    newrow[j] = Convert.ToString(rows[4] + "&" + Convert.ToString(rows[9]));
+                }
+                else
+                {
+                    newrow[j] = rows[j];
+                }
             }
             resultdt.Rows.Add(newrow);
             return resultdt;    
@@ -214,7 +232,6 @@ namespace ColorPaintChangeFrm.Logic
             DataTable resultdt;
             DataTable tempdt;
             //除筛选条件为‘不筛选’外,其它都要进行判断获取表头信息
-            // var tempdt = GlobalClasscs.Fun.ImportWhite == "WR" ? GenerateNewDt(sourcedt) : _tempdt;
             tempdt = sortid == 1 ? _tempdt : GenerateNewDt(sourcedt);
 
             //纵向输出
@@ -279,6 +296,8 @@ namespace ColorPaintChangeFrm.Logic
                         newrow[13 + i + i] = rowsdtl[i][13];      //色母编码
                         newrow[13 + i + i + 1] = rowsdtl[i][15];  //色母量
                     }
+                    //生成内部色号&版本日期
+                    newrow[73] = Convert.ToString(dtrows[0][4])+"&"+Convert.ToString(dtrows[0][9]);
                     resultdt.Rows.Add(newrow);
                 }
             }

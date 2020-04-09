@@ -16,7 +16,7 @@ namespace ColorPaintChangeFrm
         //保存EXCEL导入的DT
         private DataTable _importdt;
         //保存运算成功的表头DT(导出时使用)
-        private DataTable _tempdt;
+       // private DataTable _tempdt;
         //保存运算成功的表体DT(导出时使用)
         private DataTable _tempdtldt;
         #endregion
@@ -35,7 +35,6 @@ namespace ColorPaintChangeFrm
             btnopen.Click += Btnopen_Click;
             tmclose.Click += Tmclose_Click;
             btnimportemptyexcel.Click += Btnimportemptyexcel_Click;
-            btnimportWhiteExcel.Click += BtnimportWhiteExcel_Click;
         }
 
         /// <summary>
@@ -71,61 +70,10 @@ namespace ColorPaintChangeFrm
 
                     if (MessageBox.Show(clickMessage, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                     {
-                        if (!Generatedt(_importdt)) throw new Exception("运算不成功,请联系管理员");
+                        if (!Generatedt(_importdt)) throw new Exception("运算结果没有记录,请检查是否与实际情况一致");
                         else if (MessageBox.Show(clickMes, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                         {
                             Exportdt();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, $"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        /// <summary>
-        /// 导入增白(控色剂)EXCEL
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BtnimportWhiteExcel_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var openFileDialog = new OpenFileDialog { Filter = $"Xlsx文件|*.xlsx" };
-                if (openFileDialog.ShowDialog() != DialogResult.OK) return;
-                var fileAdd = openFileDialog.FileName;
-
-                //将所需的值赋到Task类内
-                task.TaskId = 0;
-                task.FileAddress = fileAdd;
-                task.Typeid = 1;   //导入类型=>1:常规纵向EXCEL导入 2:带空白纵向EXCEL导入
-
-                //使用子线程工作(作用:通过调用子线程进行控制Load窗体的关闭情况)
-                new Thread(Start).Start();
-                load.StartPosition = FormStartPosition.CenterScreen;
-                load.ShowDialog();
-
-                _importdt = task.RestulTable;
-
-                if (_importdt.Rows.Count == 0) throw new Exception("不能成功导入EXCEL内容,请检查模板是否正确.");
-                else
-                {
-                    var clickMessage = $"导入成功,是否进行运算功能?";
-                    var clickMes = $"运算成功,是否进行导出至Excel?";
-
-                    if (MessageBox.Show(clickMessage, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
-                    {
-                        //对标记进行初始化赋值
-                        //GlobalClasscs.Fun.ImportWhite = "WR";
-                        if (!Generatedt(_importdt)) throw new Exception("运算不成功或没有结果,请联系管理员");
-                        else if (MessageBox.Show(clickMes, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
-                        {
-                            Exportdt();
-                            //执行完成后进行清空
-                           // GlobalClasscs.Fun.ImportWhite = "";
                         }
                     }
                 }
@@ -169,7 +117,7 @@ namespace ColorPaintChangeFrm
 
                     if (MessageBox.Show(clickMessage, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                     {
-                        if (!Generatedt(_importdt)) throw new Exception("运算不成功,请联系管理员");
+                        if (!Generatedt(_importdt)) throw new Exception("运算结果没有记录,请检查是否与实际情况一致");
                         else if (MessageBox.Show(clickMes, $"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                         {
                             Exportdt();
@@ -202,7 +150,7 @@ namespace ColorPaintChangeFrm
                 var genid = Convert.ToInt32(dvgenidlist["Id"]);
 
                 //获取下拉列表信息-选择条件
-                var dvsortlist= (DataRowView)comsortselect.Items[comgenselect.SelectedIndex];
+                var dvsortlist= (DataRowView)comsortselect.Items[comsortselect.SelectedIndex];
                 var sortid = Convert.ToInt32(dvsortlist["Id"]);
 
                 task.TaskId = 1;
@@ -217,7 +165,7 @@ namespace ColorPaintChangeFrm
                 load.ShowDialog();
 
                 result = task.ResultMark;
-                _tempdt = task.Tempdt;
+               // _tempdt = task.Tempdt;
             }
             catch (Exception)
             {
