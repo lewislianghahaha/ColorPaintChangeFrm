@@ -95,15 +95,13 @@ namespace ColorPaintChangeFrm.Logic
                     //定义总列数
                     colid = 16;
 
-                    //判断若从EXCEL获取的‘制造商’ ‘版本日期’ ‘内部色号’不为空,且与对应变量不相同时,就将变量初始化:目的:用于区分一个配方,且令下一个配方记录能正确插入数据
-                    var excelcompany = Convert.ToString(row.GetCell(0));
+                    //判断若从EXCEL获取的‘版本日期’ ‘内部色号’不为空,且与对应变量不相同时,就将变量初始化:目的:用于区分一个配方,且令下一个配方记录能正确插入数据
                     var excelfordt = Convert.ToString(row.GetCell(9));
                     var excelcolorcode = Convert.ToString(row.GetCell(4));
 
                     if (dt.Rows.Count > 0)
                     {
-                        if (!string.IsNullOrEmpty(excelcompany) && excelcompany != company &&
-                             !string.IsNullOrEmpty(excelfordt) && excelfordt != fordt &&
+                        if (!string.IsNullOrEmpty(excelfordt) && excelfordt != fordt &&
                              !string.IsNullOrEmpty(excelcolorcode) && excelcolorcode != colorcode)
                         {
                             #region 初始化各变量
