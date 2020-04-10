@@ -95,14 +95,58 @@ namespace ColorPaintChangeFrm.Logic
                     //定义总列数
                     colid = 16;
 
+                    //判断若从EXCEL获取的‘制造商’ ‘版本日期’ ‘内部色号’不为空,且与对应变量不相同时,就将变量初始化:目的:用于区分一个配方,且令下一个配方记录能正确插入数据
+                    var excelcompany = Convert.ToString(row.GetCell(0));
+                    var excelfordt = Convert.ToString(row.GetCell(9));
+                    var excelcolorcode = Convert.ToString(row.GetCell(4));
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        if (!string.IsNullOrEmpty(excelcompany) && excelcompany != company &&
+                             !string.IsNullOrEmpty(excelfordt) && excelfordt != fordt &&
+                             !string.IsNullOrEmpty(excelcolorcode) && excelcolorcode != colorcode)
+                        {
+                            #region 初始化各变量
+                            //定义制造商
+                            company = "";
+                            //定义车型
+                            car = "";
+                            //定义涂层
+                            tulayer = "";
+                            //定义颜色描述
+                            colordescript = "";
+                            //定义内部色号
+                            colorcode = "";
+                            //定义主配方(差异色)
+                            colorcha = "";
+                            //定义颜色组别
+                            colorgroup = "";
+                            //定义标准色号
+                            standurd = "";
+                            //定义RGBValue
+                            rgb = "";
+                            //定义版本日期
+                            fordt = "";
+                            //定义层
+                            layer = "";
+                            //定义制作人
+                            user = "";
+                            //定义二维码编号
+                            code = "";
+                            #endregion
+                        }
+                    }
+ 
+
                     for (var j = 0; j < colid/*row.Cells.Count*/; j++)
                     {
                         //循环获取行中的单元格
                         var cell = row.GetCell(j);
                         var cellValue = GetCellValue(cell);
+                        
                         if (cellValue == string.Empty)
                         {
-                            //若为空,将对应变量赋值给指定的dr[j]内=>(注:typeid=2时才执行)
+                            #region 若为空,将对应变量赋值给指定的dr[j]内=>(注:typeid=2时才执行)
                             if (typeid == 2)
                             {
                                 switch (j)
@@ -148,6 +192,7 @@ namespace ColorPaintChangeFrm.Logic
                                         break;
                                 }
                             }
+                            #endregion
                             else
                             {
                                 continue;
@@ -156,7 +201,8 @@ namespace ColorPaintChangeFrm.Logic
                         else
                         {
                             dr[j] = cellValue;
-                            //若不为空,将对应的J赋值给对应的变量内=>(注:typeid=2时才执行)
+
+                            #region 若不为空,将对应的J赋值给对应的变量内=>(注:typeid=2时才执行)
                             if (typeid == 2)
                             {
                                 switch (j)
@@ -202,6 +248,7 @@ namespace ColorPaintChangeFrm.Logic
                                         break;
                                 }
                             }
+                            #endregion
                         }
 
                         //全为空就不取

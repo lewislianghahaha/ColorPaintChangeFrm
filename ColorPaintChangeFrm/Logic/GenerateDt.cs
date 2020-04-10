@@ -211,6 +211,13 @@ namespace ColorPaintChangeFrm.Logic
                 {
                     newrow[j] = Convert.ToString(rows[4] + "&" + Convert.ToString(rows[9]));
                 }
+                #region 20200409:临时：色母量（L）/10=100ML色母量值
+                ////todo:临时：色母量（L）/10=100ML色母量值
+                //else if (j == 15)
+                //{
+                //    newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) / 10, 2);
+                //}
+                #endregion
                 else
                 {
                     newrow[j] = rows[j];
