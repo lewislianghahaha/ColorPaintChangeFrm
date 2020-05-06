@@ -196,7 +196,7 @@ namespace ColorPaintChangeFrm.Logic
         }
 
         /// <summary>
-        /// 不需计算色母量使用
+        /// 不需计算色母量使用(注:得出来的色母量是以100ML的色母量值)
         /// </summary>
         /// <param name="resultdt"></param>
         /// <param name="rows"></param>
@@ -213,10 +213,10 @@ namespace ColorPaintChangeFrm.Logic
                 }
                 #region 20200409:临时：色母量（L）/10=100ML色母量值
                 ////todo:临时：色母量（L）/10=100ML色母量值
-                //else if (j == 15)
-                //{
-                //    newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) / 10, 2);
-                //}
+                else if (j == 15)
+                {
+                    newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) / 10, 2);
+                }
                 #endregion
                 else
                 {
