@@ -13,7 +13,7 @@ namespace ColorPaintChangeFrm.Logic
         /// </summary>
         /// <param name="fileAddress">导出地址</param>
         /// <param name="sourcedt"></param>
-        /// <param name="comselectid"></param>
+        /// <param name="comselectid">1:纵向  2:横向 3:占比率使用</param>
         public bool ExportDtToExcel(string fileAddress, DataTable sourcedt,int comselectid)
         {
             var result = true;
@@ -219,6 +219,23 @@ namespace ColorPaintChangeFrm.Logic
                                     #endregion
                             }
                         }
+                        else if (comselectid==3)
+                        {
+                            switch (j)
+                            {
+                                #region 占比率使用
+                                case 0:
+                                    row.CreateCell(j).SetCellValue("内部色号");
+                                    break;
+                                case 1:
+                                    row.CreateCell(j).SetCellValue("版本日期");
+                                    break;
+                                case 2:
+                                    row.CreateCell(j).SetCellValue("占比率");
+                                    break;
+                                    #endregion
+                            }
+                        }
                     }
 
                     //计算进行循环的起始行
@@ -254,6 +271,19 @@ namespace ColorPaintChangeFrm.Logic
                                 else if (comselectid == 2)
                                 {
                                     row.CreateCell(k, CellType.String).SetCellValue(Convert.ToString(sourcedt.Rows[j][k]));
+                                }
+                                //占比率输出使用
+                                else
+                                {
+                                    if (k == 2)
+                                    {
+                                        row.CreateCell(k, CellType.Numeric).SetCellValue(Convert.ToDouble(sourcedt.Rows[j][k]));
+                                    }
+                                    else
+                                    {
+                                        //除‘占比率’时
+                                        row.CreateCell(k, CellType.String).SetCellValue(Convert.ToString(sourcedt.Rows[j][k]));
+                                    }
                                 }
                             }
                         }

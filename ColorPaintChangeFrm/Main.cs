@@ -38,7 +38,7 @@ namespace ColorPaintChangeFrm
         }
 
         /// <summary>
-        /// 导入-含空白纵向EXCEL导入
+        /// 导入-含空白纵向EXCEL导入(从系统内获取的单据记录)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -136,6 +136,8 @@ namespace ColorPaintChangeFrm
         /// <summary>
         /// 运算功能
         /// </summary>
+        /// <param name="dt">EXCEL导入的数据源</param>
+        /// <returns></returns>
         bool Generatedt(DataTable dt)
         {
             var result = true;
@@ -157,7 +159,10 @@ namespace ColorPaintChangeFrm
                 task.Data = dt;
                 task.Selectcomid = selectid; //导出方式=>1:以纵向方式导出 2:以横向方式导出
                 task.Genid = genid;          //转换单位=>1:按KG进行计算色母量 2:按L进行计算色母量 0:不需计算色母量
-                task.Sortid = sortid;        //获取选择条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)
+                task.Sortid = sortid;        //获取选择条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 
+                                             //4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方 ) 6:根据所填色母号计算占比率(ML)
+                //接收‘色母号’所填记录
+                GlobalClasscs.Color.ColCode = txtCol.Text;
 
                 //使用子线程工作(作用:通过调用子线程进行控制Load窗体的关闭情况)
                 new Thread(Start).Start();
@@ -266,7 +271,7 @@ namespace ColorPaintChangeFrm
             }
 
             //创建行内容
-            for (var j = 0; j < 2; j++)
+            for (var j = 0; j < 3; j++)
             {
                 var dr = dt.NewRow();
 
@@ -279,6 +284,10 @@ namespace ColorPaintChangeFrm
                     case 1:
                         dr[0] = "2";
                         dr[1] = "以横向方式导出";
+                        break;
+                    case 2:
+                        dr[0] = "3";
+                        dr[1] = "占比率导出使用";
                         break;
                 }
                 dt.Rows.Add(dr);
@@ -364,7 +373,7 @@ namespace ColorPaintChangeFrm
             }
 
             //创建行内容
-            for (var j = 0; j < 5; j++)
+            for (var j = 0; j < 6; j++)
             {
                 var dr = dt.NewRow();
 
@@ -389,6 +398,10 @@ namespace ColorPaintChangeFrm
                     case 4:
                         dr[0] = "5";
                         dr[1] = "获取包含PC-60并占比>=20%的配方";
+                        break;
+                    case 5:
+                        dr[0] = "6";
+                        dr[1] = "根据所填色母号计算占比率(ML)";
                         break;
                 }
                 dt.Rows.Add(dr);

@@ -14,9 +14,10 @@ namespace ColorPaintChangeFrm.Logic
         /// 运算
         /// </summary>
         /// <param name="genid">1:按KG进行计算色母量 2:按L进行计算色母量 0:不需计算色母量</param>
-        /// <param name="selectid">1:纵向 2:横向</param>
-        /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)</param>
-        /// <param name="sourcedtdt"></param>
+        /// <param name="selectid">1:纵向 2:横向 3:占比率导出使用</param>
+        /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)
+        ///                      6:根据所填色母号计算占比率(ML)</param>
+        /// <param name="sourcedtdt">从EXCEL导入的数据源</param>
         /// <returns></returns>
         public DataTable GenerateExcelSourceDt(int genid,int selectid, int sortid, DataTable sourcedtdt)
         {
@@ -27,6 +28,8 @@ namespace ColorPaintChangeFrm.Logic
             GetColorCodeDt(dtList.Get_ColorcodeDt(), sourcedtdt);
             //创建导出临时表
             var resultdt = dtList.Get_ExportHdt();
+            //用于收集最后的返回DT结果
+            var resultfinaldt=new DataTable();
 
             //根据 制造商 版本日期 内部色号 层 涂层 在sourcedt内找到相关记录,并计算其色母量之和
             foreach (DataRow rows in _tempdt.Rows)
@@ -75,16 +78,63 @@ namespace ColorPaintChangeFrm.Logic
                 }
             }
             //根据下拉列表所选择的导出模式,进行改变其导出效果
-            return MakeExportMode(selectid, sortid,resultdt);
+            //(注:若sortid==6时,就再计算resultdt的占比率并整理成DT输出)
+            resultfinaldt = sortid == 6 ? MakeExportPerDt(resultdt).Copy() : MakeExportMode(selectid, sortid, resultdt).Copy();
+            return resultfinaldt;
+        }
+
+        /// <summary>
+        /// 计算占比率并整理导出DT记录
+        /// </summary>
+        /// <param name="sourcedt">通过GenerateExcelSourceDt()整理后的数据源</param>
+        /// <returns></returns>
+        private DataTable MakeExportPerDt(DataTable sourcedt)
+        {
+            //定义总色母量(中间值)
+            decimal sumtemp = 0;
+            //获取占比率
+            decimal pertemp = 0;
+
+            //获取输出DT
+            var dt = dtList.Get_ExportPerDt();
+
+            //从sourcedt内找出不相同的内部色号等记录
+            GetColorCodeDt(dtList.Get_ColorcodeDt(), sourcedt);
+
+            foreach (DataRow rows in _tempdt.Rows)
+            {
+                //排序方式改为:制造商 版本日期 内部色号 层 涂层 
+                var dtlrows = sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
+
+                //计算色母量之和
+                sumtemp = GenerateSumQty(dtlrows);
+                //计算占比率
+                for (var i = 0; i < dtlrows.Length; i++)
+                {
+                    if (Convert.ToString(dtlrows[i][13]) == GlobalClasscs.Color.ColCode)
+                    {
+                        pertemp += Convert.ToDecimal(dtlrows[i][15]) / sumtemp;
+                    }
+                }
+
+                //添加至dt
+                var newrow = dt.NewRow();
+                newrow[0] = rows[2];   //内部色号
+                newrow[1] = rows[1];   //版本日期
+                newrow[2] = pertemp;   //占比率
+                dt.Rows.Add(newrow);
+            }
+            return dt;
         }
 
         /// <summary>
         /// 
         /// 循环判断dtlrows内的增白剂 用量 是否适合导出条件
         /// </summary>
-        /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)</param>
+        /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)
+        ///                              6:根据所填色母号计算占比率(ML)</param>
         /// <param name="dtlrows"></param>
-        /// <param name="sumtemp"></param>
+        /// <param name="sumtemp">色母量之和</param>
         /// <returns></returns>
         private bool CheckMaterial(int sortid,DataRow [] dtlrows,decimal sumtemp)
         {
@@ -115,7 +165,7 @@ namespace ColorPaintChangeFrm.Logic
                         break;
                 }
             }
-            else
+            else if(sortid==5)
             {
                 for (var i = 0; i < dtlrows.Length; i++)
                 {
@@ -125,6 +175,10 @@ namespace ColorPaintChangeFrm.Logic
                         result = true;
                         break;
                 }
+            }
+            else if (sortid == 6)
+            {
+                result = true;
             }
             return result;
         }
@@ -345,7 +399,7 @@ namespace ColorPaintChangeFrm.Logic
         }
 
         /// <summary>
-        /// 从sourcedt内找出不相同的内部色号等记录
+        /// 从sourcedt内找出不相同的内部色号等记录(归类整理)
         /// </summary>
         /// <param name="tempdt"></param>
         /// <param name="sourcedt"></param>

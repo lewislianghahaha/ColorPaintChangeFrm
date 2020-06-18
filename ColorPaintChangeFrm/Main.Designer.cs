@@ -31,6 +31,9 @@
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.tmclose = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtCol = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.comsortselect = new System.Windows.Forms.ComboBox();
             this.comgenselect = new System.Windows.Forms.ComboBox();
             this.comselect = new System.Windows.Forms.ComboBox();
@@ -62,20 +65,49 @@
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.txtCol);
+            this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.comsortselect);
             this.panel1.Controls.Add(this.comgenselect);
             this.panel1.Controls.Add(this.comselect);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 25);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(284, 77);
+            this.panel1.Size = new System.Drawing.Size(284, 104);
             this.panel1.TabIndex = 2;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.ForeColor = System.Drawing.Color.DarkRed;
+            this.label2.Location = new System.Drawing.Point(159, 8);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(119, 12);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "注:计算占比率时使用";
+            // 
+            // txtCol
+            // 
+            this.txtCol.Location = new System.Drawing.Point(55, 3);
+            this.txtCol.Name = "txtCol";
+            this.txtCol.Size = new System.Drawing.Size(98, 21);
+            this.txtCol.TabIndex = 7;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 8);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(47, 12);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "色母号:";
             // 
             // comsortselect
             // 
             this.comsortselect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comsortselect.FormattingEnabled = true;
-            this.comsortselect.Location = new System.Drawing.Point(11, 50);
+            this.comsortselect.Location = new System.Drawing.Point(12, 77);
             this.comsortselect.Name = "comsortselect";
             this.comsortselect.Size = new System.Drawing.Size(260, 20);
             this.comsortselect.TabIndex = 5;
@@ -84,7 +116,7 @@
             // 
             this.comgenselect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comgenselect.FormattingEnabled = true;
-            this.comgenselect.Location = new System.Drawing.Point(11, 26);
+            this.comgenselect.Location = new System.Drawing.Point(12, 53);
             this.comgenselect.Name = "comgenselect";
             this.comgenselect.Size = new System.Drawing.Size(260, 20);
             this.comgenselect.TabIndex = 4;
@@ -93,7 +125,7 @@
             // 
             this.comselect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comselect.FormattingEnabled = true;
-            this.comselect.Location = new System.Drawing.Point(11, 3);
+            this.comselect.Location = new System.Drawing.Point(12, 30);
             this.comselect.Name = "comselect";
             this.comselect.Size = new System.Drawing.Size(260, 20);
             this.comselect.TabIndex = 3;
@@ -103,14 +135,14 @@
             this.panel2.Controls.Add(this.btnimportemptyexcel);
             this.panel2.Controls.Add(this.btnopen);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(0, 102);
+            this.panel2.Location = new System.Drawing.Point(0, 129);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(284, 73);
+            this.panel2.Size = new System.Drawing.Size(284, 81);
             this.panel2.TabIndex = 3;
             // 
             // btnimportemptyexcel
             // 
-            this.btnimportemptyexcel.Location = new System.Drawing.Point(12, 39);
+            this.btnimportemptyexcel.Location = new System.Drawing.Point(12, 43);
             this.btnimportemptyexcel.Name = "btnimportemptyexcel";
             this.btnimportemptyexcel.Size = new System.Drawing.Size(260, 23);
             this.btnimportemptyexcel.TabIndex = 1;
@@ -119,7 +151,7 @@
             // 
             // btnopen
             // 
-            this.btnopen.Location = new System.Drawing.Point(12, 10);
+            this.btnopen.Location = new System.Drawing.Point(12, 14);
             this.btnopen.Name = "btnopen";
             this.btnopen.Size = new System.Drawing.Size(260, 23);
             this.btnopen.TabIndex = 0;
@@ -130,7 +162,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 175);
+            this.ClientSize = new System.Drawing.Size(284, 210);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -141,6 +173,7 @@
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();
             this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -158,6 +191,9 @@
         private System.Windows.Forms.Button btnimportemptyexcel;
         private System.Windows.Forms.ComboBox comgenselect;
         private System.Windows.Forms.ComboBox comsortselect;
+        private System.Windows.Forms.TextBox txtCol;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
 

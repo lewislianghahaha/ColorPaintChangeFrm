@@ -529,5 +529,36 @@ namespace ColorPaintChangeFrm.DB
             }
             return dt;
         }
+
+        /// <summary>
+        /// 导出模板(色母占比率使用)
+        /// </summary>
+        /// <returns></returns>
+        public DataTable Get_ExportPerDt()
+        {
+            var dt = new DataTable();
+            for (var i = 0; i < 17; i++)
+            {
+                var dc = new DataColumn();
+
+                switch (i)
+                {
+                    case 0:
+                        dc.ColumnName = "内部色号";
+                        dc.DataType = Type.GetType("System.String");
+                        break;
+                    case 1:
+                        dc.ColumnName = "版本日期";
+                        dc.DataType = Type.GetType("System.String");
+                        break;
+                    case 2:
+                        dc.ColumnName = "占比率";
+                        dc.DataType = Type.GetType("System.Double");
+                        break;
+                }
+                dt.Columns.Add(dc);
+            }
+            return dt;
+        }
     }
 }
