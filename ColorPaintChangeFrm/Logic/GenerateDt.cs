@@ -106,6 +106,9 @@ namespace ColorPaintChangeFrm.Logic
                 //排序方式改为:制造商 版本日期 内部色号 层 涂层 
                 var dtlrows = sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
 
+                //判断若配方记录内不包含GlobalClasscs.Color.ColCode 的色母号,即跳过
+                if(!CheckIncludColorCode(dtlrows,GlobalClasscs.Color.ColCode)) continue;
+
                 //计算色母量之和
                 sumtemp = GenerateSumQty(dtlrows);
                 //计算占比率
@@ -116,6 +119,8 @@ namespace ColorPaintChangeFrm.Logic
                         pertemp += Convert.ToDecimal(dtlrows[i][15]) / sumtemp;
                     }
                 }
+                //若计算的‘占比率’为0,就不进行插入
+                if(pertemp == 0) continue;
 
                 //添加至dt
                 var newrow = dt.NewRow();
@@ -123,8 +128,28 @@ namespace ColorPaintChangeFrm.Logic
                 newrow[1] = rows[1];   //版本日期
                 newrow[2] = pertemp;   //占比率
                 dt.Rows.Add(newrow);
+                //将‘占比率’变量初始化
+                pertemp = 0;
             }
             return dt;
+        }
+
+        /// <summary>
+        /// 检测记录集内是否包含指定的色母号
+        /// </summary>
+        /// <param name="dtlRows"></param>
+        /// <param name="colorcode">指定色母号</param>
+        /// <returns></returns>
+        private bool CheckIncludColorCode(DataRow [] dtlRows,string colorcode)
+        {
+            var result = false;
+            for (var i = 0; i < dtlRows.Length; i++)
+            {
+                if (Convert.ToString(dtlRows[i][13]) != colorcode) continue;
+                result = true;
+                break;
+            }
+            return result;
         }
 
         /// <summary>
