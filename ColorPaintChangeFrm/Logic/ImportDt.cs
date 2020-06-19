@@ -22,19 +22,23 @@ namespace ColorPaintChangeFrm.Logic
         public DataTable OpenExcelImporttoDt(string fileAddress, int typeid)
         {
             var dt = new DataTable();
+
+            var resultdt=new DataTable();
             try
             {
                 //使用NPOI技术进行导入EXCEL至DATATABLE
                 var importExcelDt = OpenExcelToDataTable(fileAddress,typeid);
                 //将从EXCEL过来的记录集为空的行清除
                 dt = RemoveEmptyRows(importExcelDt);
+                //将“层”为2的记录清除 change date:20200619 某些场景需要
+                resultdt = DeleteInclue2Layer(dt);
             }
             catch (Exception)
             {
                 dt.Rows.Clear();
                 dt.Columns.Clear();
             }
-            return dt;
+            return resultdt; //dt;
         }
 
         private DataTable OpenExcelToDataTable(string fileAddress,int typeid)
@@ -345,6 +349,28 @@ namespace ColorPaintChangeFrm.Logic
             for (var i = 0; i < removeList.Count; i++)
             {
                 dt.Rows.Remove(removeList[i]);
+            }
+            return dt;
+        }
+
+        /// <summary>
+        /// 将sourcedt内包含层为2的记录清除 change date:20200619
+        /// </summary>
+        /// <param name="sourcedt"></param>
+        /// <returns></returns>
+        private DataTable DeleteInclue2Layer(DataTable sourcedt)
+        {
+            var dt = dtList.Get_Importdt();
+
+            for (int i = 0; i < sourcedt.Rows.Count; i++)
+            {
+                if (Convert.ToInt32(sourcedt.Rows[i][10]) != 1) continue;
+                var newrow = dt.NewRow();
+                for (int j = 0; j < sourcedt.Columns.Count; j++)
+                { 
+                    newrow[j] = sourcedt.Rows[i][j];                     
+                }
+                dt.Rows.Add(newrow);
             }
             return dt;
         }
