@@ -22,8 +22,8 @@ namespace ColorPaintChangeFrm.Logic
         public DataTable OpenExcelImporttoDt(string fileAddress, int typeid)
         {
             var dt = new DataTable();
-
             var resultdt=new DataTable();
+
             try
             {
                 //使用NPOI技术进行导入EXCEL至DATATABLE
