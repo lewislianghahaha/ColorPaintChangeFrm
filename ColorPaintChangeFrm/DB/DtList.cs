@@ -537,7 +537,7 @@ namespace ColorPaintChangeFrm.DB
         public DataTable Get_ExportPerDt()
         {
             var dt = new DataTable();
-            for (var i = 0; i < 17; i++)
+            for (var i = 0; i < 3; i++)
             {
                 var dc = new DataColumn();
 
