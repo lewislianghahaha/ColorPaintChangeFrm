@@ -31,14 +31,14 @@ namespace ColorPaintChangeFrm.Logic
                 //将从EXCEL过来的记录集为空的行清除
                 dt = RemoveEmptyRows(importExcelDt);
                 //将“层”为2的记录清除 change date:20200619 某些场景需要
-                resultdt = DeleteInclue2Layer(dt);
+                //resultdt = DeleteInclue2Layer(dt);
             }
             catch (Exception)
             {
                 dt.Rows.Clear();
                 dt.Columns.Clear();
             }
-            return resultdt; //dt;
+            return dt; //resultdt; //dt;
         }
 
         private DataTable OpenExcelToDataTable(string fileAddress,int typeid)
@@ -360,17 +360,20 @@ namespace ColorPaintChangeFrm.Logic
         /// <returns></returns>
         private DataTable DeleteInclue2Layer(DataTable sourcedt)
         {
-            var dt = dtList.Get_Importdt();
+            var dt = sourcedt.Clone();
 
             for (int i = 0; i < sourcedt.Rows.Count; i++)
             {
-                if (Convert.ToInt32(sourcedt.Rows[i][10]) != 1) continue;
-                var newrow = dt.NewRow();
-                for (int j = 0; j < sourcedt.Columns.Count; j++)
-                { 
-                    newrow[j] = sourcedt.Rows[i][j];                     
+                //涂层为:pearl 3C  && 层:2的不要
+                if (Convert.ToString(sourcedt.Rows[i][2]) != "pearl 3C" && Convert.ToInt32(sourcedt.Rows[i][10]) != 2)
+                {
+                    var newrow = dt.NewRow();
+                    for (int j = 0; j < sourcedt.Columns.Count; j++)
+                    {
+                        newrow[j] = sourcedt.Rows[i][j];
+                    }
+                    dt.Rows.Add(newrow);
                 }
-                dt.Rows.Add(newrow);
             }
             return dt;
         }

@@ -209,7 +209,6 @@ namespace ColorPaintChangeFrm
                 {
                     MessageBox.Show($"导出成功!可从EXCEL中查阅导出效果", $"成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
             }
             catch (Exception ex)
             {

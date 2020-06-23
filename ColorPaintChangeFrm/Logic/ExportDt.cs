@@ -219,6 +219,7 @@ namespace ColorPaintChangeFrm.Logic
                                     #endregion
                             }
                         }
+                        //占比率使用
                         else if (comselectid==3)
                         {
                             switch (j)
@@ -243,7 +244,7 @@ namespace ColorPaintChangeFrm.Logic
                     //计算进行循环的结束行
                     var endrow = i == sheetcount ? sourcedt.Rows.Count : i * 1000000;
 
-                    //每一个sheet表显示90000行  
+                    //每一个sheet表显示100000行  
                     for (var j = startrow; j < endrow; j++)
                     {
                         //创建行
