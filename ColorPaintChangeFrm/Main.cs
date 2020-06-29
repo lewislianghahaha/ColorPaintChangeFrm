@@ -396,7 +396,7 @@ namespace ColorPaintChangeFrm
                         break;
                     case 4:
                         dr[0] = "5";
-                        dr[1] = "获取包含PC-60并占比>=20%的配方";
+                        dr[1] = "获取PC-60占比<=25%的配方(色母数大于等于3个)";
                         break;
                     case 5:
                         dr[0] = "6";

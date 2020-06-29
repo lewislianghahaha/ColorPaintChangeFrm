@@ -153,11 +153,10 @@ namespace ColorPaintChangeFrm.Logic
         }
 
         /// <summary>
-        /// 
         /// 循环判断dtlrows内的增白剂 用量 是否适合导出条件
         /// </summary>
-        /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)
-        ///                              6:根据所填色母号计算占比率(ML)</param>
+        /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取占比
+        ///                              小于等于25% 并且色母数大于等于3个的配方) 6:根据所填色母号计算占比率(ML)</param>
         /// <param name="dtlrows"></param>
         /// <param name="sumtemp">色母量之和</param>
         /// <returns></returns>
@@ -192,18 +191,51 @@ namespace ColorPaintChangeFrm.Logic
             }
             else if(sortid==5)
             {
+                //设置:
                 for (var i = 0; i < dtlrows.Length; i++)
                 {
-                    if (Convert.ToString(dtlrows[i][13]) != "PC-60") continue;
-                    //使用“PC-60”对应的色母量/总色母量,若>=0.2才继续
-                    if (Convert.ToDecimal(Convert.ToDecimal(dtlrows[i][15]) / sumtemp) >= Convert.ToDecimal(0.2))
-                        result = true;
-                        break;
+                    if (dtlrows.Length >= 3)
+                    {
+                        //若dtlrows都没有包含PC-60,就为true跳过,反之若,包含PC-60,其占比必须要<=0.25才可为true
+                        if (!CheckIncloudOrNot(dtlrows,"PC-60"))
+                        {
+                            result = true;
+                            break;
+                        }
+                        else //if (Convert.ToString(dtlrows[i][13]) == "PC-60")
+                        {
+                            //色母量/总色母量,若<=0.25才继续
+                            if (Convert.ToDecimal(Convert.ToDecimal(dtlrows[i][15]) / sumtemp) <= Convert.ToDecimal(0.25))
+                                result = true;
+                            break;
+                        }
+                    }
+                    //if (Convert.ToString(dtlrows[i][13]) != "PC-60") continue;
                 }
             }
             else if (sortid == 6)
             {
                 result = true;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 检测在数组内是否包含指定值=>true:有 false:无包含
+        /// </summary>
+        /// <param name="dtlrows"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        private bool CheckIncloudOrNot(DataRow[] dtlrows,string code)
+        {
+            var result = false;
+            for (var i = 0; i < dtlrows.Length; i++)
+            {
+                if (Convert.ToString(dtlrows[i][13]).Contains(code))
+                {
+                    result = true;
+                    break;
+                }
             }
             return result;
         }

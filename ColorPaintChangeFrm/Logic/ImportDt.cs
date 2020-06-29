@@ -30,15 +30,15 @@ namespace ColorPaintChangeFrm.Logic
                 var importExcelDt = OpenExcelToDataTable(fileAddress,typeid);
                 //将从EXCEL过来的记录集为空的行清除
                 dt = RemoveEmptyRows(importExcelDt);
-                //将“层”为2的记录清除 change date:20200619 某些场景需要
-                //resultdt = DeleteInclue2Layer(dt);
+                //change date:20200619 某些场景需要
+                resultdt = DeleteInclue2Layer(dt);
             }
             catch (Exception)
             {
                 dt.Rows.Clear();
                 dt.Columns.Clear();
             }
-            return dt; //resultdt; //dt;
+            return resultdt; //dt;
         }
 
         private DataTable OpenExcelToDataTable(string fileAddress,int typeid)
@@ -361,21 +361,146 @@ namespace ColorPaintChangeFrm.Logic
         private DataTable DeleteInclue2Layer(DataTable sourcedt)
         {
             var dt = sourcedt.Clone();
+            //获取不重复的内容(循环使用)
+            var diffColorDt = GetDiffColorDt(sourcedt);
 
-            for (int i = 0; i < sourcedt.Rows.Count; i++)
+            //循环选取好的内容
+            foreach (DataRow rows in diffColorDt.Rows)
             {
-                //涂层为:pearl 3C  && 层:2的不要
-                if (Convert.ToString(sourcedt.Rows[i][2]) != "pearl 3C" && Convert.ToInt32(sourcedt.Rows[i][10]) != 2)
+                //若rows[2]在diffColorDt内两行(表示有两层) 或只有一行但‘层’为2,即排除
+                if(Check2(Convert.ToString(rows[0]),Convert.ToString(rows[1]),Convert.ToString(rows[2]),diffColorDt)) continue;
+
+                var dtlrows = sourcedt.Select("制造商='" + rows[0] + "' and 版本日期='" + rows[1] + "' and 内部色号='" + rows[2] + "' and 层='" + rows[3] + "' and 涂层='" + rows[4] + "'");
+                //循环将适合的记录插入至最终DT
+                for (int i = 0; i < dtlrows.Length; i++)
                 {
-                    var newrow = dt.NewRow();
-                    for (int j = 0; j < sourcedt.Columns.Count; j++)
-                    {
-                        newrow[j] = sourcedt.Rows[i][j];
-                    }
-                    dt.Rows.Add(newrow);
+                    dt.Merge(ImportImportdt(dt,dtlrows[i]));
                 }
             }
+
+            #region Hide
+            //for (int i = 0; i < sourcedt.Rows.Count; i++)
+            //{
+            //涂层为:pearl 3C  && 层:2的不要
+            //注:若同一个配方包含两层的就不要
+            //if (/*Convert.ToString(sourcedt.Rows[i][2]) != "pearl 3C" &&*/ Convert.ToInt32(sourcedt.Rows[i][10]) != 2)
+            //{
+            //    var newrow = dt.NewRow();
+            //    for (int j = 0; j < sourcedt.Columns.Count; j++)
+            //    {
+            //        newrow[j] = sourcedt.Rows[i][j];
+            //    }
+            //    dt.Rows.Add(newrow);
+            //}
+            //}
+            #endregion
+
             return dt;
         }
+
+        /// <summary>
+        /// 将适合的记录插入至最终输出的DT内
+        /// </summary>
+        /// <param name="resultdt"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        private DataTable ImportImportdt(DataTable resultdt, DataRow rows)
+        {
+            var newrow = resultdt.NewRow();
+            for (var j = 0; j < resultdt.Columns.Count; j++)
+            {
+                newrow[j] = rows[j];
+            }
+            resultdt.Rows.Add(newrow);
+            return resultdt;
+        }
+
+        /// <summary>
+        /// 检测若超过两行时为true
+        /// </summary>
+        /// <param name="factory"></param>
+        /// <param name="dt"></param>
+        /// <param name="code"></param>
+        /// <param name="diffdt"></param>
+        /// <returns></returns>
+        private bool Check2(string factory,string dt,string code,DataTable diffdt)
+        {
+            var result = false;
+
+            var dtlrows = diffdt.Select("制造商='"+factory+"' and 版本日期='"+dt+"' and 内部色号='"+code+"'");
+            //判断为TRUE条件:1)若dtlrows=1,且对应的‘层’为2 2)dtlrows有两行
+            if (dtlrows.Length == 1 && Convert.ToString(dtlrows[0][3]) == "2")
+            {
+                result = true;
+            }
+            else if (dtlrows.Length > 1)
+            {
+                result = true;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 整理不相同的指定配方记录
+        /// </summary>
+        /// <param name="sourcedt"></param>
+        /// <returns></returns>
+        private DataTable GetDiffColorDt(DataTable sourcedt)
+        {
+            var resultdt = dtList.Get_ColorcodeDt();
+
+            //定义‘制造商’变量
+            var factory = string.Empty;
+            //定义‘版本日期’变量
+            var comdt = string.Empty;
+            //定义‘内部色号’变量
+            var colorcode = string.Empty;
+            //定义‘层’变量
+            var layer = string.Empty;
+            //定义‘涂层’变量
+            var tulayer = string.Empty;
+
+            foreach (DataRow rows in sourcedt.Rows)
+            {
+                var newrow = resultdt.NewRow();
+                if (colorcode == "")
+                {
+                    newrow[0] = rows[0];      //制造商
+                    newrow[1] = rows[9];      //版本日期
+                    newrow[2] = rows[4];      //内部色号
+                    newrow[3] = rows[10];     //层
+                    newrow[4] = rows[2];      //涂层
+
+                    //对变量赋值
+                    factory = Convert.ToString(rows[0]);
+                    comdt = Convert.ToString(rows[9]);
+                    colorcode = Convert.ToString(rows[4]);
+                    layer = Convert.ToString(rows[10]);
+                    tulayer = Convert.ToString(rows[2]);
+                }
+                else
+                {
+                    if (factory == Convert.ToString(rows[0]) && comdt == Convert.ToString(rows[9]) && colorcode == Convert.ToString(rows[4])
+                        && layer == Convert.ToString(rows[10]) && tulayer == Convert.ToString(rows[2])) continue;
+
+                    //当不相同时才添加
+                    newrow[0] = rows[0];      //制造商
+                    newrow[1] = rows[9];      //版本日期
+                    newrow[2] = rows[4];      //内部色号 
+                    newrow[3] = rows[10];     //层
+                    newrow[4] = rows[2];      //涂层
+
+                    //对变量赋值
+                    factory = Convert.ToString(rows[0]);
+                    comdt = Convert.ToString(rows[9]);
+                    colorcode = Convert.ToString(rows[4]);
+                    layer = Convert.ToString(rows[10]);
+                    tulayer = Convert.ToString(rows[2]);
+                }
+                resultdt.Rows.Add(newrow);
+            }
+            return resultdt;
+        }
+
     }
 }
