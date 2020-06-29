@@ -77,6 +77,7 @@ namespace ColorPaintChangeFrm.Logic
                     }
                 }
             }
+
             //根据下拉列表所选择的导出模式,进行改变其导出效果
             //(注:若sortid==6时,就再计算resultdt的占比率并整理成DT输出)
             resultfinaldt = sortid == 6 ? MakeExportPerDt(resultdt).Copy() : MakeExportMode(selectid, sortid, resultdt).Copy();
@@ -315,6 +316,7 @@ namespace ColorPaintChangeFrm.Logic
         private DataTable Generatedt(DataTable resultdt,DataRow rows)
         {
             var newrow = resultdt.NewRow();
+
             for (var j = 0; j < resultdt.Columns.Count; j++)
             {
                 //表示到最后一列=>将内部色号+"&"+版本日期
@@ -326,7 +328,15 @@ namespace ColorPaintChangeFrm.Logic
                 ////色母量（L）/10=100ML色母量值
                 else if (j == 15)
                 {
-                    newrow[j] = Math.Round(Convert.ToDecimal(rows[j]) / 10, 2);
+                    var tempnum = Convert.ToDecimal(rows[j]) / 10;
+                    if (tempnum < Convert.ToDecimal(0.01))
+                    {
+                        newrow[j] = 0.01;
+                    }
+                    else
+                    {
+                        newrow[j] = Math.Round(tempnum,2);
+                    }
                 }
                 #endregion
                 else

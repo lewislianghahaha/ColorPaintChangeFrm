@@ -416,7 +416,7 @@ namespace ColorPaintChangeFrm.Logic
         }
 
         /// <summary>
-        /// 检测若超过两行时为true
+        /// 在diffColorDt内两行(表示有两层) 或只有一行但‘层’为2
         /// </summary>
         /// <param name="factory"></param>
         /// <param name="dt"></param>
