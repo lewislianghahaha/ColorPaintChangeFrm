@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using ColorPaintChangeFrm.DB;
-using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
@@ -31,14 +31,15 @@ namespace ColorPaintChangeFrm.Logic
                 //将从EXCEL过来的记录集为空的行清除
                 dt = RemoveEmptyRows(importExcelDt);
                 //change date:20200619 某些场景需要
-                resultdt = DeleteInclue2Layer(dt);
+                //resultdt = DeleteInclue2Layer(dt);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                var a = ex.Message;
                 dt.Rows.Clear();
                 dt.Columns.Clear();
             }
-            return resultdt; //dt;
+            return  dt;//resultdt;
         }
 
         private DataTable OpenExcelToDataTable(string fileAddress,int typeid)

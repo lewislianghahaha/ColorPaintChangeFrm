@@ -16,7 +16,7 @@ namespace ColorPaintChangeFrm.Logic
         /// <param name="genid">1:按KG进行计算色母量 2:按L进行计算色母量 0:不需计算色母量</param>
         /// <param name="selectid">1:纵向 2:横向 3:占比率导出使用</param>
         /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取包含PC-60并占比>=20%的配方)
-        ///                      6:根据所填色母号计算占比率(ML)</param>
+        ///                      6:根据所填色母号计算占比率(ML) 7:色母数大于或等于9个的配方</param>
         /// <param name="sourcedtdt">从EXCEL导入的数据源</param>
         /// <returns></returns>
         public DataTable GenerateExcelSourceDt(int genid,int selectid, int sortid, DataTable sourcedtdt)
@@ -157,7 +157,7 @@ namespace ColorPaintChangeFrm.Logic
         /// 循环判断dtlrows内的增白剂 用量 是否适合导出条件
         /// </summary>
         /// <param name="sortid">筛选条件(1:不筛选 2:获取1个色母数的配方 3:获取2个色母数的配方 4:获取3个色母数并包含PC-60的配方 5:获取占比
-        ///                              小于等于25% 并且色母数大于等于3个的配方) 6:根据所填色母号计算占比率(ML)</param>
+        ///                              小于等于25% 并且色母数大于等于3个的配方) 6:根据所填色母号计算占比率(ML) 7:色母数大于或等于9个的配方</param>
         /// <param name="dtlrows"></param>
         /// <param name="sumtemp">色母量之和</param>
         /// <returns></returns>
@@ -218,6 +218,10 @@ namespace ColorPaintChangeFrm.Logic
             {
                 result = true;
             }
+            else if (sortid==7)
+            {
+                result = dtlrows.Length >= 9;
+            }
             return result;
         }
 
@@ -242,7 +246,7 @@ namespace ColorPaintChangeFrm.Logic
         }
 
         /// <summary>
-        /// 将结果整理到resultdt内(以公斤会式来运算)
+        /// 将结果整理到resultdt内(以公斤公式来运算)
         /// </summary>
         /// <param name="resultdt"></param>
         /// <param name="rows"></param>
@@ -335,7 +339,7 @@ namespace ColorPaintChangeFrm.Logic
                     }
                     else
                     {
-                        newrow[j] = Math.Round(tempnum,2);
+                        newrow[j] = Math.Round(tempnum,3);
                     }
                 }
                 #endregion

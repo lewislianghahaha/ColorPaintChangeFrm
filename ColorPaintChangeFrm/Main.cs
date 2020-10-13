@@ -372,7 +372,7 @@ namespace ColorPaintChangeFrm
             }
 
             //创建行内容
-            for (var j = 0; j < 6; j++)
+            for (var j = 0; j < 7; j++)
             {
                 var dr = dt.NewRow();
 
@@ -402,6 +402,10 @@ namespace ColorPaintChangeFrm
                         dr[0] = "6";
                         dr[1] = "根据所填色母号计算占比率(ML)";
                         break;
+                    case 6:
+                        dr[0] = "7";
+                        dr[1] = "色母数大于或等于9个的配方";
+                       break;
                 }
                 dt.Rows.Add(dr);
             }
