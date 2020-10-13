@@ -35,7 +35,7 @@ namespace ColorPaintChangeFrm.Logic
             }
             catch (Exception ex)
             {
-                var a = ex.Message;
+                //var a = ex.Message;
                 dt.Rows.Clear();
                 dt.Columns.Clear();
             }
