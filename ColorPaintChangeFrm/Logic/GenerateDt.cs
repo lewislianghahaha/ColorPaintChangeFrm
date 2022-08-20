@@ -77,6 +77,7 @@ namespace ColorPaintChangeFrm.Logic
                     }
                 }
             }
+          // var A = resultdt.Copy();
 
             //根据下拉列表所选择的导出模式,进行改变其导出效果
             //(注:若sortid==6时,就再计算resultdt的占比率并整理成DT输出)
@@ -328,21 +329,21 @@ namespace ColorPaintChangeFrm.Logic
                 {
                     newrow[j] = Convert.ToString(rows[4] + "&" + Convert.ToString(rows[9]));
                 }
-                #region 20200409:临时：色母量（L）/10=100ML色母量值
-                ////色母量（L）/10=100ML色母量值
-                else if (j == 15)
-                {
-                    var tempnum = Convert.ToDecimal(rows[j]) / 10;
-                    if (tempnum < Convert.ToDecimal(0.01))
-                    {
-                        newrow[j] = 0.01;
-                    }
-                    else
-                    {
-                        newrow[j] = Math.Round(tempnum,3);
-                    }
-                }
-                #endregion
+                //#region 20200409:临时：色母量（L）/10=100ML色母量值
+                //////色母量（L）/10=100ML色母量值
+                ////else if (j == 15)
+                ////{
+                ////    var tempnum = Convert.ToDecimal(rows[j]) / 10;
+                ////    if (tempnum < Convert.ToDecimal(0.01))
+                ////    {
+                ////        newrow[j] = 0.01;
+                ////    }
+                ////    else
+                ////    {
+                ////        newrow[j] = Math.Round(tempnum,3);
+                ////    }
+                ////}
+                //#endregion
                 else
                 {
                     newrow[j] = rows[j];
